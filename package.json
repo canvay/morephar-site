@@ -11,6 +11,9 @@
     "export": "cd backend && yarn strapi export --no-encrypt -f ../seed-data",
     "repo:upstream": "git fetch upstream && git merge upstream/main"
   },
+  "engines": {
+    "node": "v20.11.0"
+  },
   "dependencies": {
     "concurrently": "^8.2.2"
   }
