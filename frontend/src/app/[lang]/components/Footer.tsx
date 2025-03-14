@@ -127,7 +127,7 @@ export default function Footer({
               ))}
             </ul>
           </div>
-          <div className="flex justify-center pt-4 space-x-4 lg:pt-0 lg:col-end-13">
+          {/* <div className="flex justify-center pt-4 space-x-4 lg:pt-0 lg:col-end-13">
             {socialLinks.map((link: FooterLink) => {
               return (
                 <a
@@ -142,7 +142,7 @@ export default function Footer({
                 </a>
               );
             })}
-          </div>
+          </div> */}
         </div>
       </div>
     </footer>
