@@ -1,0 +1,15 @@
+{
+  "collectionName": "components_sections_banners",
+  "info": {
+    "displayName": "Banners",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "banner": {
+      "type": "component",
+      "repeatable": true,
+      "component": "elements.banner"
+    }
+  }
+}

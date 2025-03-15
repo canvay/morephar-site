@@ -16,6 +16,14 @@ const populate = {
       buttons: {
         populate: true,
       },
+      banner: {
+        populate: {
+          fields: ["title", "description"],
+          picture: {
+            fields: ["url", "alternativeText", "caption", "width", "height"],
+          },
+        },
+      },
       feature: {
         populate: {
           fields: ["title", "description", "showLink", "newTab", "url", "text"],

@@ -39,7 +39,8 @@
         "sections.lead-form",
         "sections.features",
         "sections.heading",
-        "sections.slider"
+        "sections.slider",
+        "sections.banners"
       ],
       "pluginOptions": {
         "i18n": {
