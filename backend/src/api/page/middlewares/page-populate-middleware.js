@@ -10,6 +10,9 @@ const populate = {
       picture: {
         fields: ["url", "alternativeText", "caption", "width", "height"],
       },
+      files: {
+        fields: ["url", "alternativeText", "caption", "width", "height"],
+      },
       buttons: {
         populate: true,
       },

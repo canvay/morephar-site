@@ -1,0 +1,21 @@
+{
+  "collectionName": "components_sections_carousels",
+  "info": {
+    "displayName": "Slider",
+    "icon": "landscape",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "files": {
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ],
+      "type": "media",
+      "multiple": true
+    }
+  }
+}

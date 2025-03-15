@@ -20,13 +20,22 @@ interface SlidShowProps {
 
 export default function Slideshow({ data }: { data: SlidShowProps }) {
   return (
-    <div className="slide-container">
+    <div className="slide-container h-[500px]">
       <Fade>
         {data.files.data.map((fadeImage: Image, index) => {
           const imageUrl = getStrapiMedia(fadeImage.attributes.url);
           return (
-            <div key={index}>
-              {imageUrl && <Image className="w-full h-96 object-cover rounded-lg" height={400} width={600} alt="alt text" src={imageUrl} />}
+            <div key={index} className="relative aspect-[16/7] w-full h-[500px]">
+              {imageUrl && (
+                <Image
+                  className="rounded-lg"
+                  fill
+                  style={{ objectFit: 'cover' }}
+                  priority={index === 0}
+                  alt={fadeImage.attributes.alternativeText || 'Slider image'}
+                  src={imageUrl}
+                />
+              )}
             </div>
           );
         })}

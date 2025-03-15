@@ -87,7 +87,7 @@ export default async function RootLayout({
           {children}
         </main>
 
-        <Banner data={notificationBanner} />
+        {/* <Banner data={notificationBanner} /> */}
 
         <Footer
           logoUrl={footerLogoUrl}
