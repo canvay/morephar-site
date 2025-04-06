@@ -7,11 +7,7 @@ interface BannersProps {
   data: {
     banner: Array<{
       picture: {
-        data: {
-          attributes: {
-            url: string;
-          };
-        };
+        url: string;
       };
       title: string;
     }>;
@@ -25,7 +21,7 @@ export default function Banners({ data }: BannersProps) {
     <div className="container mx-auto px-4 py-8">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {data.banner.map((item, index) => {
-          const imageUrl = item.picture?.data?.attributes?.url;
+          const imageUrl = item.picture?.url;
           return (
             <div key={index} className="relative h-64 overflow-hidden rounded-lg">
               {imageUrl && (

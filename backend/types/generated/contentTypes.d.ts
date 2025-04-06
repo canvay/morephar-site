@@ -492,8 +492,6 @@ export interface ApiGlobalGlobal extends Struct.SingleTypeSchema {
   };
   options: {
     draftAndPublish: false;
-    increments: true;
-    timestamps: true;
   };
   pluginOptions: {
     i18n: {
@@ -501,6 +499,7 @@ export interface ApiGlobalGlobal extends Struct.SingleTypeSchema {
     };
   };
   attributes: {
+    contact: Schema.Attribute.Component<'elements.contact', false>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;

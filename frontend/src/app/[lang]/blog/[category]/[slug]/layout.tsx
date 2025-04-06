@@ -108,6 +108,6 @@ export async function generateStaticParams() {
           slug: string;
         };
       };
-    }) => ({ slug: article.attributes.slug, category: article.attributes.slug })
+    }) => ({ slug: article.slug, category: article.slug })
   );
 }

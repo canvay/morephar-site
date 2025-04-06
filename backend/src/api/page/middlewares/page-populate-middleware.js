@@ -6,50 +6,22 @@
 
 const populate = {
   contentSections: {
-    populate: {
-      picture: {
-        fields: ["url", "alternativeText", "caption", "width", "height"],
+    on: {
+      "sections.slider": {
+        populate: "*"
       },
-      files: {
-        fields: ["url", "alternativeText", "caption", "width", "height"],
-      },
-      buttons: {
-        populate: true,
-      },
-      banner: {
+      "sections.banners": {
         populate: {
-          fields: ["title", "description"],
-          picture: {
-            fields: ["url", "alternativeText", "caption", "width", "height"],
-          },
-        },
+          banner: {
+            populate: "*"
+          }
+        }
       },
-      feature: {
-        populate: {
-          fields: ["title", "description", "showLink", "newTab", "url", "text"],
-          media: {
-            fields: ["url", "alternativeText", "caption", "width", "height"],
-          },
-        },
-      },
-      testimonials: {
-        populate: {
-          picture: {
-            fields: ["url", "alternativeText", "caption", "width", "height"],
-          },
-        },
-      },
-      plans: {
-        populate: ["product_features"],
-      },
-      submitButton: {
-        populate: true,
-      },
-    },
+    }
   },
   seo: {
     fields: ["metaTitle", "metaDescription"],
-    populate: { shareImage: true },
+    populate: { shareImage: true }
   }
 };
 

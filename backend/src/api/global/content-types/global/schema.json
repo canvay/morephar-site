@@ -9,8 +9,6 @@
     "description": ""
   },
   "options": {
-    "increments": true,
-    "timestamps": true,
     "draftAndPublish": false
   },
   "pluginOptions": {
@@ -71,6 +69,11 @@
         }
       },
       "component": "layout.footer"
+    },
+    "contact": {
+      "type": "component",
+      "repeatable": false,
+      "component": "elements.contact"
     }
   }
 }

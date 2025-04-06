@@ -16,10 +16,8 @@ interface FooterLink {
 
 interface CategoryLink {
   id: string;
-  attributes: {
-    name: string;
-    slug: string;
-  };
+  name: string;
+  slug: string;
 }
 
 function FooterLink({ url, text }: FooterLink) {
@@ -38,14 +36,14 @@ function FooterLink({ url, text }: FooterLink) {
   );
 }
 
-function CategoryLink({ attributes }: CategoryLink) {
+function CategoryLink({ name, slug }: CategoryLink) {
   return (
     <li className="flex">
       <Link
-        href={`/blog/${attributes.slug}`}
+        href={`/blog/${slug}`}
         className="hover:dark:text-violet-400"
       >
-        {attributes.name}
+        {name}
       </Link>
     </li>
   );
@@ -81,7 +79,6 @@ export default function Footer({
   legalLinks: Array<FooterLink>;
   socialLinks: Array<FooterLink>;
 }) {
-
   return (
     <footer className="py-6 dark:bg-black dark:text-gray-50">
       <div className="container px-6 mx-auto space-y-6 divide-y divide-gray-400 md:space-y-12 divide-opacity-50">
@@ -110,24 +107,17 @@ export default function Footer({
             </ul>
           </div>
         </div>
+
         <div className="grid justify-center pt-6 lg:justify-between">
           <div className="flex">
-            <span className="mr-2">
-              ©{new Date().getFullYear()} All rights reserved
-            </span>
-            <ul className="flex">
+            <ul className="self-center py-6 space-y-4 text-center sm:flex sm:space-y-0 sm:justify-around sm:space-x-4 lg:flex-1 lg:justify-start">
               {legalLinks.map((link: FooterLink) => (
-                <Link
-                  href={link.url}
-                  className="text-gray-400 hover:text-gray-300 mr-2"
-                  key={link.id}
-                >
-                  {link.text}
-                </Link>
+                <FooterLink key={link.id} {...link} />
               ))}
             </ul>
           </div>
-          {/* <div className="flex justify-center pt-4 space-x-4 lg:pt-0 lg:col-end-13">
+
+          <div className="flex justify-center pt-4 space-x-4 lg:pt-0 lg:col-end-13">
             {socialLinks.map((link: FooterLink) => {
               return (
                 <a
@@ -142,7 +132,7 @@ export default function Footer({
                 </a>
               );
             })}
-          </div> */}
+          </div>
         </div>
       </div>
     </footer>

@@ -5,18 +5,19 @@ import {FALLBACK_SEO} from "@/app/[lang]/utils/constants";
 
 
 type Props = {
-    params: {
+    params: Promise<{
         lang: string,
         slug: string
-    }
+    }>
 }
 
 
-export async function generateMetadata({params}: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+    const params = await props.params;
     const page = await getPageBySlug(params.slug, params.lang);
 
     if (!page.data[0].attributes?.seo) return FALLBACK_SEO;
-    const metadata = page.data[0].attributes.seo
+    const metadata = page.data[0].seo
 
     return {
         title: metadata.metaTitle,
@@ -25,9 +26,10 @@ export async function generateMetadata({params}: Props): Promise<Metadata> {
 }
 
 
-export default async function PageRoute({params}: Props) {
+export default async function PageRoute(props: Props) {
+    const params = await props.params;
     const page = await getPageBySlug(params.slug, params.lang);
     if (page.data.length === 0) return null;
-    const contentSections = page.data[0].attributes.contentSections;
+    const contentSections = page.data[0].contentSections;
     return contentSections.map((section: any, index: number) => sectionRenderer(section, index));
 }

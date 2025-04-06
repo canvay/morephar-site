@@ -11,6 +11,17 @@ export interface ElementsBanner extends Struct.ComponentSchema {
   };
 }
 
+export interface ElementsContact extends Struct.ComponentSchema {
+  collectionName: 'components_elements_contacts';
+  info: {
+    displayName: 'contact';
+  };
+  attributes: {
+    email: Schema.Attribute.Email;
+    tel: Schema.Attribute.String;
+  };
+}
+
 export interface ElementsFeature extends Struct.ComponentSchema {
   collectionName: 'components_elements_features';
   info: {
@@ -545,6 +556,7 @@ declare module '@strapi/strapi' {
   export module Public {
     export interface ComponentSchemas {
       'elements.banner': ElementsBanner;
+      'elements.contact': ElementsContact;
       'elements.feature': ElementsFeature;
       'elements.feature-column': ElementsFeatureColumn;
       'elements.feature-row': ElementsFeatureRow;

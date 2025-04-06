@@ -12,8 +12,8 @@ export function sectionRenderer(section: any, index: number) {
       return <Hero key={index} data={section} />;
     case "sections.features":
       return <Features key={index} data={section} />;
-    case "sections.testimonials-group":
-      return <Testimonials key={index} data={section} />;
+    // case "sections.testimonials-group":
+    //   return <Testimonials key={index} data={section} />;
     case "sections.pricing":
       return <Pricing key={index} data={section} />;
     case "sections.lead-form":

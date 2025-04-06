@@ -31,14 +31,15 @@ async function fetchPostsByCategory(filter: string) {
     }
 }
 
-export default async function CategoryRoute({ params }: { params: { category: string } }) {
+export default async function CategoryRoute(props: { params: Promise<{ category: string }> }) {
+    const params = await props.params;
     const filter = params.category;
     const { data } = await fetchPostsByCategory(filter);
 
     //TODO: CREATE A COMPONENT FOR THIS
     if (data.length === 0) return <div>Not Posts In this category</div>;
 
-    const { name, description } = data[0]?.attributes.category.data.attributes;
+    const { name, description } = data[0]?.category.data.attributes;
 
     return (
         <div>

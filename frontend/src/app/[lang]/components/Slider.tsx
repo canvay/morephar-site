@@ -3,16 +3,12 @@
 import ImageSlider from "./ImageSlider";
 
 interface SliderProps {
-    files: {
-        data: Array<{
-            id: number;
-            attributes: {
-                alternativeText: string | null;
-                caption: string | null;
-                url: string;
-            };
-        }>;
-    };
+    files: Array<{
+        id: number;
+        alternativeText: string | null;
+        caption: string | null;
+        url: string;
+    }>;
 }
 
 export default function Slider({ data }: { data: SliderProps }) {

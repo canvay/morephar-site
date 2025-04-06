@@ -3,7 +3,7 @@ type StrapiResponse<T> = {
   message: string;
 };
 
-export interface Attribute {
+export interface Media {
 	url: string;
 	alternativeText?: any;
 	caption?: any;
@@ -11,13 +11,13 @@ export interface Attribute {
 	height: number;
 }
 
-export interface Data {
-	id: number;
-	attributes: Attribute;
-}
-
 export interface Picture {
-	data: Data;
+	id: number;
+	url: string;
+	alternativeText?: string;
+	caption?: string;
+	width: number;
+	height: number;
 }
 
 export interface Button {
@@ -37,7 +37,8 @@ export interface ContentSection {
 	buttons: Button[];
 }
 
-export interface Attribute {
+export interface Page {
+	id: number;
 	shortName: string;
 	slug: string;
 	createdAt: string;
@@ -47,11 +48,6 @@ export interface Attribute {
 	heading?: any;
 	description?: any;
 	contentSections: ContentSection[];
-}
-
-export interface Data {
-	id: number;
-	attributes: Attribute;
 }
 
 export interface Pagination {
@@ -66,6 +62,6 @@ export interface Meta {
 }
 
 export interface RootObject {
-	data: Data[];
+	data: Page[];
 	meta: Meta;
 }
