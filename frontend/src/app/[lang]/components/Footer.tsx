@@ -39,10 +39,7 @@ function FooterLink({ url, text }: FooterLink) {
 function CategoryLink({ name, slug }: CategoryLink) {
   return (
     <li className="flex">
-      <Link
-        href={`/blog/${slug}`}
-        className="hover:dark:text-violet-400"
-      >
+      <Link href={`/blog/${slug}`} className="hover:dark:text-violet-400">
         {name}
       </Link>
     </li>
@@ -90,15 +87,6 @@ export default function Footer({
           </div>
 
           <div className="col-span-6 text-center md:text-left md:col-span-3">
-            <p className="pb-1 text-lg font-medium">Categories</p>
-            <ul>
-              {categoryLinks.map((link: CategoryLink) => (
-                <CategoryLink key={link.id} {...link} />
-              ))}
-            </ul>
-          </div>
-
-          <div className="col-span-6 text-center md:text-left md:col-span-3">
             <p className="pb-1 text-lg font-medium">Menu</p>
             <ul>
               {menuLinks.map((link: FooterLink) => (
@@ -109,30 +97,8 @@ export default function Footer({
         </div>
 
         <div className="grid justify-center pt-6 lg:justify-between">
-          <div className="flex">
-            <ul className="self-center py-6 space-y-4 text-center sm:flex sm:space-y-0 sm:justify-around sm:space-x-4 lg:flex-1 lg:justify-start">
-              {legalLinks.map((link: FooterLink) => (
-                <FooterLink key={link.id} {...link} />
-              ))}
-            </ul>
-          </div>
-
-          <div className="flex justify-center pt-4 space-x-4 lg:pt-0 lg:col-end-13">
-            {socialLinks.map((link: FooterLink) => {
-              return (
-                <a
-                  key={link.id}
-                  rel="noopener noreferrer"
-                  href={link.url}
-                  title={link.text}
-                  target={link.newTab ? "_blank" : "_self"}
-                  className="flex items-center justify-center w-10 h-10 rounded-full dark:bg-violet-400 dark:text-gray-900"
-                >
-                  <RenderSocialIcon social={link.social} />
-                </a>
-              );
-            })}
-          </div>
+          © 2025 morephar.com All Rights Reserved. 905 E. Salter Drive, Phoenix,
+          AZ 85024 | (623) 582-2800
         </div>
       </div>
     </footer>

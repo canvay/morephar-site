@@ -7,6 +7,9 @@
 const populate = {
   contentSections: {
     on: {
+      "sections.hero": {
+        populate: "*"
+      },
       "sections.slider": {
         populate: "*"
       },

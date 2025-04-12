@@ -3,6 +3,7 @@ import { postRenderer } from '@/app/[lang]/utils/post-renderer';
 import Image from 'next/image';
 
 interface Article {
+    blocks: any;
     id: number;
     attributes: {
         title: string;

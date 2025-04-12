@@ -4,7 +4,7 @@ import Quote from "../components/Quote";
 import Media from "../components/Media";
 import VideoEmbed from "../components/VideoEmbed";
 
-export function postRenderer(section: any, index: number) {
+export function productRenderer(section: any, index: number) {
   switch (section.__component) {
     // case "shared.rich-text":
     //   return <RichText key={index} data={section} />;

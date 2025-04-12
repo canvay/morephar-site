@@ -29,6 +29,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 export default async function PageRoute(props: Props) {
     const params = await props.params;
     const page = await getPageBySlug(params.slug, params.lang);
+    console.log("🚀 ~ PageRoute ~ page:", page)
     if (page.data.length === 0) return null;
     const contentSections = page.data[0].contentSections;
     return contentSections.map((section: any, index: number) => sectionRenderer(section, index));

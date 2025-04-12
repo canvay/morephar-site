@@ -1,14 +1,15 @@
 {
   "collectionName": "components_elements_product_info_items",
   "info": {
-    "displayName": "Product Info Item"
+    "displayName": "Product Info Item",
+    "description": ""
   },
   "options": {},
   "attributes": {
-    "inventory": {
+    "label": {
       "type": "string"
     },
-    "newest": {
+    "value": {
       "type": "string"
     }
   }
