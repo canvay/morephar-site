@@ -13,7 +13,7 @@ interface SliderProps {
 
 export default function Slider({ data }: { data: SliderProps }) {
     return (
-        <section className="container mx-auto px-4 py-12">
+        <section className="w-full h-[500px]">
             <ImageSlider data={data} />
         </section>
     );

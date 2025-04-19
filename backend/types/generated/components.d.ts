@@ -221,6 +221,17 @@ export interface SectionsBottomActions extends Struct.ComponentSchema {
   };
 }
 
+export interface SectionsFeaturedProducts extends Struct.ComponentSchema {
+  collectionName: 'components_sections_featured_products';
+  info: {
+    description: '';
+    displayName: 'Featured Products';
+  };
+  attributes: {
+    products: Schema.Attribute.Relation<'oneToMany', 'api::product.product'>;
+  };
+}
+
 export interface SectionsHeading extends Struct.ComponentSchema {
   collectionName: 'components_sections_headings';
   info: {
@@ -402,6 +413,7 @@ declare module '@strapi/strapi' {
       'meta.metadata': MetaMetadata;
       'sections.banners': SectionsBanners;
       'sections.bottom-actions': SectionsBottomActions;
+      'sections.featured-products': SectionsFeaturedProducts;
       'sections.heading': SectionsHeading;
       'sections.hero': SectionsHero;
       'sections.large-video': SectionsLargeVideo;

@@ -13,9 +13,19 @@ const populate = {
       "sections.slider": {
         populate: "*"
       },
+      "sections.heading": {
+        populate: "*"
+      },
       "sections.banners": {
         populate: {
           banner: {
+            populate: "*"
+          }
+        }
+      },
+      "sections.featured-products": {
+        populate: {
+          products: {
             populate: "*"
           }
         }

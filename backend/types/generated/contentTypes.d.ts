@@ -542,13 +542,11 @@ export interface ApiPagePage extends Struct.CollectionTypeSchema {
     contentSections: Schema.Attribute.DynamicZone<
       [
         'sections.hero',
-        'sections.bottom-actions',
-        'sections.large-video',
         'sections.rich-text',
-        'sections.lead-form',
         'sections.heading',
         'sections.slider',
         'sections.banners',
+        'sections.featured-products',
       ]
     > &
       Schema.Attribute.SetPluginOptions<{

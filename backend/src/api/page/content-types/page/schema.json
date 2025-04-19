@@ -29,13 +29,11 @@
       "type": "dynamiczone",
       "components": [
         "sections.hero",
-        "sections.bottom-actions",
-        "sections.large-video",
         "sections.rich-text",
-        "sections.lead-form",
         "sections.heading",
         "sections.slider",
-        "sections.banners"
+        "sections.banners",
+        "sections.featured-products"
       ],
       "pluginOptions": {
         "i18n": {

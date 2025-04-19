@@ -12,7 +12,6 @@ export default function Logo({
     <Link
       href="/"
       aria-label="Back to homepage"
-      className="flex items-center p-2"
     >
       {src && <Image src={src} alt="logo" width={128} height={72} />}
       <div className="ml-2">{children}</div>
