@@ -1,53 +1,65 @@
-# Strapi Starter Next 13, Tailwind, Typescript and Strapi
+# Morephar 站点
 
-note: This project was started with love by [Trecia](https://github.com/TreciaKS), [Daniel](https://github.com/malgamves) and [Paul](https://github.com/PaulBratslavsky). We were all new to Next 13 and Typescript. If you find any bugs or improvements feel free to create an issue. Thank you all for your support and participation.
+基于 **Strapi 5 + Next.js 16** 的企业官网 / 博客模板（fork 自 [strapi/nextjs-corporate-starter](https://github.com/strapi/nextjs-corporate-starter)，已全面升级依赖并适配新版 API）。
 
 ![demo-site](https://user-images.githubusercontent.com/6153188/231865321-0da5e81f-4832-4cce-bcd1-ecd79e9b9cc3.gif)
 
+## 技术栈
 
-## Hello Strapi
+### 前端（`frontend/`）
 
-Strapi Community Edition is a free and open-source headless CMS enabling you to manage any content, anywhere.
+| 类别 | 技术 | 版本 |
+| --- | --- | --- |
+| 框架 | Next.js（App Router） | 16.x |
+| UI 库 | React | 19.x |
+| 语言 | TypeScript | 5.9 |
+| 样式 | Tailwind CSS | 4.x |
+| 组件 | Headless UI / Heroicons / react-icons | 2.x / 2.x / 5.x |
+| 内容渲染 | react-markdown + remark-gfm | 10.x / 4.x |
+| 轮播 | react-slideshow-image | 4.x |
 
-- **Self-hosted or Cloud**: You can host and scale Strapi projects the way you want. You can save time by deploying to [Strapi Cloud](https://cloud.strapi.io/signups?source=github1) or deploy to the hosting platform you want**: AWS, Azure, Google Cloud, DigitalOcean.
-- **Modern Admin Pane**: Elegant, entirely customizable and a fully extensible admin panel.
-- **Multi-database support**: You can choose the database you prefer: PostgreSQL, MySQL, MariaDB, and SQLite.
-- **Customizable**: You can quickly build your logic by fully customizing APIs, routes, or plugins to fit your needs perfectly.
-- **Blazing Fast and Robust**: Built on top of Node.js and TypeScript, Strapi delivers reliable and solid performance.
-- **Front-end Agnostic**: Use any front-end framework (React, Next.js, Vue, Angular, etc.), mobile apps or even IoT.
-- **Secure by default**: Reusable policies, CORS, CSP, P3P, Xframe, XSS, and more.
-- **Powerful CLI**: Scaffold projects and APIs on the fly.
+### 后端（`backend/`）
 
-## Features
+| 类别 | 技术 | 版本 |
+| --- | --- | --- |
+| CMS | Strapi（Community Edition） | 5.59 |
+| 数据库 | SQLite（better-sqlite3） | 13.x |
+| 图片处理 | sharp | 0.35 |
+| 插件 | @strapi/plugin-seo / @strapi/plugin-users-permissions | 2.x / 5.59 |
 
-- **Content Types Builder**: Build the most flexible publishing experience for your content managers, by giving them the freedom to create any page on the go with [fields](https://docs.strapi.io/user-docs/content-manager/writing-content#filling-up-fields), components and [Dynamic Zones](https://docs.strapi.io/user-docs/content-manager/writing-content#dynamic-zones).
-- **Media Library**: Upload your images, videos, audio or documents to the media library. Easily find the right asset, edit and reuse it.
-- **Internationalization**: The Internationalization (i18n) plugin allows Strapi users to create, manage and distribute localized content in different languages, called "locales
-- **Role Based Access Control**: Create an unlimited number of custom roles and permissions for admin and end users.
-- **GraphQL or REST**: Consume the API using REST or GraphQL
+### 工程化
 
-You can unlock additional features such as SSO, Audit Logs, Review Workflows in [Strapi Cloud](https://cloud.strapi.io/login?source=github1) or [Strapi Enterprise](https://strapi.io/enterprise?source=github1).
+- **运行环境**：Node.js ≥ 20，Yarn 1.x
+- **多进程启动**：concurrently
+- **国际化**：`[lang]` 路由段 + negotiator / @formatjs/intl-localematcher 语言协商（`middleware.ts` 自动跳转）
 
+## 项目结构
 
-## Getting Started
-
-If you prefer videos that guide you through the setup process you can find them [here](https://github.com/strapi/nextjs-corporate-starter/issues/71)
-
-1. Clone the repository locally:
-
-```bash
-  git clone https://github.com/strapi/nextjs-corporate-starter.git
-    or
-  gh repo clone strapi/nextjs-corporate-starter
+```
+morephar-site/
+├── frontend/          # Next.js 前端
+│   └── src/app/[lang]/  # 按语言划分的页面与组件
+├── backend/           # Strapi CMS 后端
+│   ├── config/        # 数据库、中间件等配置
+│   ├── src/api/       # 内容类型：文章、作者、分类、页面、产品等
+│   └── src/components/# 可复用内容组件
+└── seed-data.tar.gz   # 示例内容备份（用于一键导入）
 ```
 
-2. Run `setup` command to setup frontend and backend dependencies:
+## 环境要求
+
+- Node.js ≥ 20（建议使用 nvm 管理版本）
+- Yarn 1.22+
+
+## 快速开始
+
+1. 克隆仓库并安装前后端依赖：
 
 ```bash
-  yarn setup
+yarn setup
 ```
 
-3. Next, navigate to your `/backend` directory and set up your `.env` file. You can use the `.env.example` file as reference:
+2. 创建后端环境变量文件 `backend/.env`（可参考 `backend/.env.example`）：
 
 ```bash
 HOST=localhost
@@ -59,274 +71,103 @@ JWT_SECRET=tobemodified
 TRANSFER_TOKEN_SALT=tobemodified
 ```
 
-4. Start your project by running the following command:
-
-```bash
-  yarn build
-  yarn develop
-```
-
-You will be prompted to create your first admin user.
-
-![admin-user](https://user-images.githubusercontent.com/6153188/231865420-5f03a90f-b893-4057-9634-9632920a7d97.gif)
-
-Great. You now have your project running. Let's add some data.
-
-## Seeding The Data
-
-We are going to use our DEITS feature which will alow to easily import data into your project.
-
-You can learn more about it in our documentation [here](https://docs.strapi.io/dev-docs/data-management).
-
-In the root of our project we have our `seed-data.tar.gz` file. We will use it to seed our data.
-
-1. Open up your terminal and make sure you are still in you `backend` folder.
-
-2. Run the following command to seed your data:
-
-```bash
-  yarn strapi import -f ../seed-data.tar.gz
-```
-
-![after-import](https://user-images.githubusercontent.com/6153188/231865491-05cb5818-a0d0-49ce-807e-a879f7e3070c.gif)
-
-This will import your data locally. Log back into your admin panel to see the newly imported data.
-
-Here is a quick video covering initial setup and data seeding.
-
-https://github.com/strapi/nextjs-corporate-starter/assets/6153188/80f00bf5-d17b-449d-8a0d-7f0d9614f40b
-
-## Setting Up The Frontend
-
-Next we need to switch to our `/frontend` directory and create our `.env` file and paste in the following.
+3. 创建前端环境变量文件 `frontend/.env`（可参考 `frontend/.env.example`）：
 
 ```bash
 NEXT_PUBLIC_STRAPI_API_TOKEN=your-api-token
 NEXT_PUBLIC_PAGE_LIMIT=6
 NEXT_PUBLIC_STRAPI_FORM_SUBMISSION_TOKEN=your-form-submission-token
 NEXT_PUBLIC_STRAPI_API_URL=http://localhost:1337
-
 ```
 
-Before starting our Next JS app we need to go inside our Strapi Admin and create two tokens that we will be using for **form submission** and displaying our **content**.
-
-Inside your Strapi Admin Panel navigate to Settings -> API Tokens and click on the `Create new API Token`.
-
-![api-tokens](https://user-images.githubusercontent.com/6153188/231865572-cebc5538-374c-4050-91cd-c303fae25a3d.png)
-
-Here are our Token Settings
-
-Name: Public API Token Content
-Description: Access to public content.
-Token duration: Unlimited
-Token type: Custom
-
-In Permissions lets give the following access.
-
-| Content         |   Permissions    |
-| --------------- | :--------------: |
-| Article         | find and findOne |
-| Author          | find and findOne |
-| Category        | find and findOne |
-| Global          |       find       |
-| Page            | find and findOne |
-| Product-feature | find and findOne |
-
-![permissions](https://user-images.githubusercontent.com/6153188/231865625-a3634d89-0f40-4a6d-a356-8f654abd88b9.gif)
-
-Once you have your token add it to your `NEXT_PUBLIC_STRAPI_API_TOKEN` variable name in the `.env` file.
-
-**Alternatively:** you can create a READ only Token that will give READ permission to all your endpoints.
-
-In this particular project this is not an issue. Although the above is the recommended way, just wanted to show you this option here as well.
-
-When creating a Token, just select the `Read-only` option from token type drop down.
-
-<img width="1093" alt="create-read-only-token" src="https://github.com/strapi/nextjs-corporate-starter/assets/6153188/3ea6c029-b296-4bbc-a5ce-33eedac52a03">
-
-Next create a token that will allow us to submit our form.
-
-Name: Public API Form Submit
-Description: Form Submission.
-Token duration: Unlimited
-Token type: Custom
-
-In Permissions lets give the following access.
-
-| Content              | Permissions |
-| -------------------- | :---------: |
-| Lead-Form-Submission |   create    |
-
-Add your token to your `NEXT_PUBLIC_STRAPI_FORM_SUBMISSION_TOKEN` variable name in the `.env` file.
-
-Once your environment variables are set you can start your frontend application by running `yarn dev`.
-
-You should now see your Next JS frontend.
-
-![frontend](https://user-images.githubusercontent.com/6153188/231865662-d870051f-4503-4a01-bc6b-635c7c5ca40d.png)
-
-## Start Both Projects Concurrently
-
-We can also start both projects with one command using the `concurrently` package.
-
-You can find the setting inside the `package.json` file inside the root folder.
-
-```json
-{
-  "scripts": {
-    "frontend": "yarn dev --prefix ../frontend/",
-    "backend": "yarn dev --prefix ../backend/",
-    "clear": "cd frontend && rm -rf .next && rm -rf cache",
-    "setup:frontend": "cd frontend && yarn",
-    "setup:backend": "cd backend && yarn",
-    "setup": "yarn install && yarn setup:frontend && yarn setup:backend",
-    "dev": "yarn clear && concurrently \"cd frontend && yarn dev\" \"cd backend && yarn develop\""
-  },
-  "dependencies": {
-    "concurrently": "^7.6.0"
-  }
-}
-```
-Go to the root folder and install the package, `yarn`
-You can start both apps by running `yarn dev`.
-
-## Conclusion
-
-Hope you find this starter useful, it is a bare-bone example to help you get started quickly.
-
-Would love to hear what you will build using it.
-
-If you find bugs or have suggestions feel free to create issues.
-
-Thank you and stay awesome.
-
-# Contributing to the Next.js Corporate Starter repository
-
-We're so excited that you're thinking about contributing to the Next.js Corporate Starter open-source project! If you're unsure or afraid of anything, just know that you can't mess up here. Any contribution is valuable, and we appreciate you!
-
-This document aims to provide all the necessary information for you to make a contribution.
-
-## Prerequisites
-
-Before you can contribute, you need to have the following installed:
-
-- Node.js and npm: You can download these from the official [Node.js website](https://nodejs.org/).
-- Git: You can find installation instructions for Git in the official [Git Book](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git).
-
-## Steps to Contribute
-
-### 1. Fork the Repository
-
-In your web browser, navigate to [https://github.com/strapi/nextjs-corporate-starter](https://github.com/strapi/nextjs-corporate-starter). Click the 'Fork' button in the upper right-hand corner of the page. This creates a copy of the repository in your GitHub account.
-
-### 2. Clone your Fork
-
-Now, go to your version of the repository. You can do this by navigating to https://github.com/USERNAME/nextjs-corporate-starter (replace 'USERNAME' with your GitHub username). Here, click the 'Clone' button and then 'Copy to clipboard' to copy the git URL.
-
-Next, you need to open your terminal, navigate to where you want to store the project, and type the following command, followed by 'Enter':
+4. 一键启动前后端：
 
 ```bash
-git clone PASTE_CLONED_REPOSITORY_URL
+yarn dev
 ```
 
-Replace 'PASTE_CLONED_REPOSITORY_URL' with the URL you copied earlier. This command downloads your fork to your computer.
-
-### 3. Add Upstream Repository
-
-Before you can start contributing, you have to set up a reference to the original repository. You can do this with the following command:
+也可以分别启动：
 
 ```bash
-git remote add upstream https://github.com/strapi/nextjs-corporate-starter.git
+# 后端（http://localhost:1337）
+cd backend && yarn develop
+# 前端（http://localhost:3000）
+cd frontend && yarn dev
 ```
 
-This command adds a new remote, named 'upstream', that points to the original repository.
+5. 首次启动后访问 `http://localhost:1337/admin` 注册管理员账号。
 
-### 4. Synchronize your Fork
+## 导入示例数据（可选）
 
-Before you start making changes, you should synchronize your forked repository with the latest changes from the upstream. Here are the steps:
-
-a. Fetch the branches and their respective commits:
+项目根目录的 `seed-data.tar.gz` 是一份内容备份，可通过 Strapi 数据传输功能导入：
 
 ```bash
-git fetch upstream
+yarn seed
 ```
 
-b. Checkout to the main branch of your fork:
+> 注：该备份已修复为 Strapi 5 兼容格式，可直接导入（包含文章、页面、媒体等示例内容）。之后也可以用 `yarn export` 随时导出你自己的备份。
+
+## 配置 API Token
+
+前端需要两个 Strapi API Token。在后台 **Settings → API Tokens → Create new API Token** 中创建：
+
+**1. 内容读取 Token**（对应 `NEXT_PUBLIC_STRAPI_API_TOKEN`）
+
+- Token 类型：Custom，有效期 Unlimited
+- 权限：
+
+| 内容类型 | 权限 |
+| --- | --- |
+| Article | find、findOne |
+| Author | find、findOne |
+| Category | find、findOne |
+| Global | find |
+| Page | find、findOne |
+| Product-feature | find、findOne |
+
+> 也可以直接创建一个 **Read-only** 类型的 Token，一次性获得所有端点的只读权限。
+
+**2. 表单提交 Token**（对应 `NEXT_PUBLIC_STRAPI_FORM_SUBMISSION_TOKEN`）
+
+| 内容类型 | 权限 |
+| --- | --- |
+| Lead-Form-Submission | create |
+
+## 常用脚本
+
+在项目根目录执行：
+
+| 命令 | 说明 |
+| --- | --- |
+| `yarn setup` | 安装根目录及前后端依赖 |
+| `yarn dev` | 清理缓存并同时启动前后端 |
+| `yarn frontend` / `yarn backend` | 单独启动前端 / 后端 |
+| `yarn seed` | 导入 `seed-data.tar.gz` 示例数据 |
+| `yarn export` | 将当前内容导出为备份文件 |
+| `yarn clear` | 清理前端 `.next` 构建缓存 |
+| `yarn repo:upstream` | 同步上游模板的最新改动 |
+
+## 常见问题
+
+**如何新增页面？**
+在 Strapi 后台的 Content Manager 中创建 Page 类型的内容，并在页面构建器里添加所需的动态区块（Dynamic Zone）即可，前端会自动渲染对应路由。
+
+**如何升级 Strapi？**
+在 `backend/` 目录执行：
 
 ```bash
-git checkout main
+npx @strapi/upgrade latest     # 先用 --dry 预览
 ```
 
-c. Merge changes from the upstream's main branch into your local main branch:
+## 关于模板
 
-```bash
-git merge upstream/main
-```
+本项目模板由 [Trecia](https://github.com/TreciaKS)、[Daniel](https://github.com/malgamves) 和 [Paul](https://github.com/PaulBratslavsky) 创建，在此感谢他们的工作。如发现问题欢迎提 issue。
 
-This brings your fork's main branch into sync with the upstream repository, without losing your local changes.
+Strapi Community Edition 是免费开源的无头 CMS：
 
-### 5. Create a Branch
-
-When you're making a contribution, it's best to make your changes in a new branch instead of the main branch. You can create a new branch and switch to it using the following command:
-
-```bash
-git checkout -b BRANCH_NAME
-```
-
-Replace 'BRANCH_NAME' with a name that describes the change you're planning to make.
-
-### 6. Make your Changes
-
-Now, you can start making changes to the project. Feel free to make changes that you think will enhance the project.
-
-### 7. Commit your Changes
-
-When you've made your changes, you need to commit them. This is like creating a save point in a game. You can do this using the following commands:
-
-```bash
-git add -A
-git commit -m "Your detailed commit message"
-```
-
-Replace "Your detailed commit message" with a description of the changes you made.
-
-### 8. Push your Changes
-
-After committing your changes, you need to push them to your forked repository on GitHub. You can do this with the following command:
-
-```bash
-git push origin BRANCH_NAME
-```
-
-Replace 'BRANCH_NAME' with the name of the branch you created earlier.
-
-### 9. Create a Pull Request
-
-After you've pushed your changes, you're ready to create a pull request (PR). Navigate to your forked repository in your web browser and click on 'Pull request' (near the top of the page), then on 'New pull request'. Ensure that the base fork is the original repository and the base is 'main', and that the head fork is your fork and the compare is the branch you created.
-
-Enter a title for your PR and describe the changes you made. Once you're ready, click 'Create pull request'.
-
-### Congrats! 🎉
-
-You've just made a contribution to the Next.js Corporate Starter project! The team will review your changes and may suggest some modifications or improvements. Once your changes have been approved, they will be merged into the main codebase.
-
-Thank you for your contribution. We appreciate you!
-
-Remember, everyone was new to open-source at some point. If you're unsure about something, don't hesitate to ask for help. Good luck and happy hacking!
-
-### Psst...
-
-If you find yourself contributing frequently, we've provided a script in the package.json to help keep your local project synchronized with the main branch of the upstream (original) project. Simply execute the following command:
-
-```bash
-yarn repo:upstream
-```
-
-## FAQ
-
-### How do I add additional pages?
-Check out [this video](https://youtu.be/EoVrTNA3geM) where I will guide on how to do this.
-
-### How do I update my Strapi version?
-Check out this [this issue comment](https://github.com/strapi/nextjs-corporate-starter/issues/17#issuecomment-1558149967)
-
+- **自托管或云部署**：可部署到 Strapi Cloud、AWS、Azure、Google Cloud、DigitalOcean 等任意平台
+- **现代化管理后台**：优雅、可定制、可扩展
+- **多数据库支持**：PostgreSQL、MySQL、MariaDB、SQLite
+- **国际化**：内置 i18n 插件，支持多语言内容管理
+- **基于角色的权限控制**：为管理员和终端用户创建任意数量的自定义角色
+- **REST 或 GraphQL**：按需选择 API 风格

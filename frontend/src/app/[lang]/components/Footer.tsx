@@ -1,5 +1,3 @@
-import Logo from "./Logo";
-
 export default function Footer({
   logoUrl,
   logoText,

@@ -10,14 +10,18 @@
     "strapi": "strapi"
   },
   "dependencies": {
-    "@strapi/plugin-seo": "^2.0.8",
-    "@strapi/plugin-users-permissions": "^5.12.5",
-    "@strapi/strapi": "^5.12.5",
-    "better-sqlite3": "11.3.0",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
-    "react-router-dom": "^6.0.0",
-    "styled-components": "^6.0.0"
+    "@strapi/plugin-seo": "^2.0.9",
+    "@strapi/plugin-users-permissions": "5.59.0",
+    "@strapi/strapi": "5.59.0",
+    "better-sqlite3": "^13.0.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.30.3",
+    "sharp": "^0.35.5",
+    "styled-components": "^6.1.19"
+  },
+  "engines": {
+    "node": ">=20.0.0"
   },
   "author": {
     "name": "A Strapi developer"

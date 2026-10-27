@@ -2,7 +2,7 @@
   "scripts": {
     "frontend": "yarn dev --prefix ../frontend/",
     "backend": "yarn dev --prefix ../backend/",
-    "clear": "cd frontend && rm -rf .next && rm -rf cache",
+    "clear": "cd frontend && (if exist .next rmdir /s /q .next) && (if exist cache rmdir /s /q cache)",
     "setup:frontend": "cd frontend && yarn",
     "setup:backend": "cd backend && yarn",
     "setup": "yarn install && yarn setup:frontend && yarn setup:backend",
@@ -12,9 +12,10 @@
     "repo:upstream": "git fetch upstream && git merge upstream/main"
   },
   "engines": {
-    "node": "v20.11.0"
+    "node": ">=20.0.0"
   },
   "dependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^10.0.6",
+    "sharp": "^0.35.5"
   }
 }

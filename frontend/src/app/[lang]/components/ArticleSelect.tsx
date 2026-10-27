@@ -4,9 +4,7 @@ interface Category {
   id: number;
   name: string;
   slug: string;
-  articles: {
-    data: Array<{}>;
-  };
+  articles: Array<{}>;
 }
 
 interface Article {
@@ -33,6 +31,7 @@ export default function ArticleSelect({
     category: string;
   };
 }) {
+
   return (
     <div className="p-4 rounded-lg dark:bg-gray-900 min-h-[365px] relative">
       <h4 className="text-xl font-semibold">Browse By Category</h4>
@@ -40,9 +39,10 @@ export default function ArticleSelect({
       <div>
         <div className="flex flex-wrap py-6 space-x-2 dark:border-gray-400">
           {categories.map((category: Category) => {
-            if (category.articles.data.length === 0) return null;
+            if (!category.articles || category.articles.length === 0) return null;
             return (
               <Link
+                key={category.id}
                 href={`/blog/${category.slug}`}
                 className={selectedFilter(
                   category.slug,
@@ -63,7 +63,7 @@ export default function ArticleSelect({
           <ul className="ml-4 space-y-1 list-disc">
             {articles.map((article: Article) => {
               return (
-                <li>
+                <li key={article.id}>
                   <Link
                     rel="noopener noreferrer"
                     href={`/blog/${params.category}/${article.slug}`}

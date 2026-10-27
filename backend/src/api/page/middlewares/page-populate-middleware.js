@@ -2,6 +2,7 @@
 
 /**
  * `page-populate-middleware` middleware
+ * Strapi 5: dynamic zones are populated per-component with the `on` syntax.
  */
 
 const populate = {
@@ -30,6 +31,57 @@ const populate = {
           }
         }
       },
+      "sections.features": {
+        populate: {
+          feature: {
+            populate: "*"
+          }
+        }
+      },
+      "sections.feature-columns-group": {
+        populate: {
+          features: {
+            populate: "*"
+          }
+        }
+      },
+      "sections.feature-rows-group": {
+        populate: {
+          features: {
+            populate: "*"
+          }
+        }
+      },
+      "sections.testimonials-group": {
+        populate: {
+          testimonials: {
+            populate: "*"
+          }
+        }
+      },
+      "sections.pricing": {
+        populate: {
+          plans: {
+            populate: "*"
+          }
+        }
+      },
+      "sections.lead-form": {
+        populate: {
+          submitButton: "*"
+        }
+      },
+      "sections.bottom-actions": {
+        populate: {
+          buttons: "*"
+        }
+      },
+      "sections.large-video": {
+        populate: {
+          video: "*",
+          poster: "*"
+        }
+      },
     }
   },
   seo: {
@@ -43,11 +95,9 @@ module.exports = (config, { strapi }) => {
   return async (ctx, next) => {
     ctx.query = {
       populate,
-      filters: { slug: ctx.query.filters.slug },
+      filters: ctx.query.filters ?? {},
       locale: ctx.query.locale,
     };
-
-    console.log("page-populate-middleware.js: ctx.query = ", ctx.query);
 
     await next();
   };
