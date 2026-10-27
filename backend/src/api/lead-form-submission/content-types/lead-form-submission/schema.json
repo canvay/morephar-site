@@ -14,6 +14,18 @@
     "draftAndPublish": false
   },
   "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "company": {
+      "type": "string"
+    },
+    "message": {
+      "type": "text"
+    },
     "email": {
       "type": "string"
     },

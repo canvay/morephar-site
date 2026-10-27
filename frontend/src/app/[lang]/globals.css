@@ -1,7 +1,16 @@
+@import url('https://fonts.googleapis.com/css2?family=Hind:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 @import "react-slideshow-image/dist/styles.css";
 
 @plugin '@tailwindcss/forms';
+
+@theme {
+  --color-primary: #24a8e0;
+  --color-primary-dark: #1889bd;
+  --color-accent: #d8a419;
+  --color-ink: #32373c;
+  --font-sans: "Hind", ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
 
 body {
   @apply dark:bg-black

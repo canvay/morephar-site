@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { getStrapiMedia, getStrapiURL } from "./utils/api-helpers";
+import { getStrapiURL } from "./utils/api-helpers";
 import { fetchAPI } from "./utils/fetch-api";
+import { getCategories, type CategoryItem } from "./utils/get-products";
 
 import { i18n } from "../../../i18n-config";
 import Footer from "./components/Footer";
-import Navbar from "./components/Navbar";
+import Navbar, { type NavCategory } from "./components/Navbar";
 import { FALLBACK_SEO } from "@/app/[lang]/utils/constants";
 
 
@@ -22,14 +23,21 @@ async function getGlobal(lang: string): Promise<any> {
       "metadata",
       "favicon",
       "contact",
-      "navbar.links",
       "navbar.navbarLogo.logoImg",
       "footer.footerLogo.logoImg",
-      "footer.categories",
     ],
     locale: lang,
   };
   return await fetchAPI(path, urlParamsObject, options);
+}
+
+async function getNavCategories(): Promise<NavCategory[]> {
+  try {
+    const categories: CategoryItem[] = await getCategories();
+    return categories.map((c) => ({ documentId: c.documentId, name: c.name, slug: c.slug }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata(props: { params: Promise<{ lang: string }> }): Promise<Metadata> {
@@ -62,36 +70,28 @@ export default async function RootLayout(
     children
   } = props;
 
-  const global = await getGlobal(params.lang);
+  const [global, categories] = await Promise.all([getGlobal(params.lang), getNavCategories()]);
   // TODO: CREATE A CUSTOM ERROR PAGE
   if (!global.data) return null;
 
-  const { contact, navbar, footer } = global.data;
+  const { contact, navbar } = global.data;
 
-  const navbarLogoUrl = getStrapiMedia(
-    navbar.navbarLogo?.logoImg?.url
-  );
+  const contactInfo = {
+    tel: contact?.tel,
+    email: contact?.email,
+    address: contact?.address,
+  };
 
-  const footerLogoUrl = getStrapiMedia(
-    footer.footerLogo?.logoImg?.url
-  );
+  const logoText: string = navbar?.navbarLogo?.logoText || "Morephare";
 
   return (
     <html lang={params.lang}>
       <body>
-        <Navbar
-          contact={contact}
-          links={navbar.links}
-          logoUrl={navbarLogoUrl}
-          logoText={navbar.navbarLogo.logoText}
-        />
-        <main className="bg-white">
+        <Navbar contact={contactInfo} categories={categories} logoText={logoText} />
+        <main className="bg-white min-h-[60vh]">
           {children}
         </main>
-        <Footer
-          logoUrl={footerLogoUrl}
-          logoText={footer.footerLogo.logoText}
-        />
+        <Footer categories={categories} contact={contactInfo} />
       </body>
     </html>
   );

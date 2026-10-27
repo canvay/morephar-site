@@ -1,122 +1,154 @@
-import Logo from "./Logo";
 import Link from "next/link";
-import { BsTelephone, BsEnvelope } from "react-icons/bs";
+import { BsTelephone, BsEnvelope, BsSearch } from "react-icons/bs";
+import { FaChevronDown } from "react-icons/fa";
 
-interface NavLink {
-  id: number;
-  url: string;
-  newTab: boolean;
-  text: string;
-}
-
-interface MobileNavLink extends NavLink {
-  closeMenu: () => void;
-}
-
-function NavLink({ url, text }: NavLink) {
-  return (
-    <li className="flex">
-      <Link href={url} className={`flex items-center`}>
-        {text}
-      </Link>
-    </li>
-  );
+export interface NavCategory {
+  documentId: string;
+  name: string;
+  slug: string;
 }
 
 export default function Navbar({
   contact,
-  links,
-  logoUrl,
-  logoText,
+  categories,
+  logoText = "Morephare",
 }: {
-  contact: {
-    tel: string;
-    email: string;
-  };
-  links: Array<NavLink>;
-  logoUrl: string | null;
-  logoText: string | null;
+  contact: { tel?: string; email?: string };
+  categories: NavCategory[];
+  logoText?: string;
 }) {
+  const tel = contact?.tel || "0(800) 123-456";
+  const email = contact?.email || "info@morephar.com";
+
   return (
-    <div className="sticky top-0 bg-white z-100">
-      {/* First row: Logo and contact info */}
-      <div className="max-w-[1400px] m-auto p-6 hidden md:block">
-        <div className="flex items-center justify-between gap-12 py-2">
-          {/* logo */}
-          <div className="">
-            <div className="scroll-m-20 text-2xl md:text-3xl font-semibold tracking-tight transition-colors first:mt-0">
-              <Link href="/">Morephare</Link>
-            </div>
-          </div>
-          {/* search */}
-          <div className="flex-1">
-            <div className="relative">
+    <div className="sticky top-0 z-50 bg-white shadow-sm">
+      {/* Top bar: logo / search / contact / quote */}
+      <div className="max-w-[1400px] m-auto px-4 lg:px-6">
+        <div className="flex items-center justify-between gap-6 py-4">
+          <Link href="/" className="shrink-0 text-2xl md:text-3xl font-bold tracking-tight text-ink">
+            <span className="text-primary">{logoText.slice(0, 4)}</span>
+            {logoText.slice(4)}
+          </Link>
+
+          <div className="hidden lg:block flex-1 max-w-md">
+            <form action="/product" method="get" className="relative">
               <input
                 type="text"
-                id="Search"
-                className="w-full rounded border-gray-300 pe-10 shadow-sm sm:text-sm"
-                placeholder="search..."
+                name="q"
+                placeholder="Search equipment..."
+                className="w-full rounded border-gray-300 pe-10 shadow-sm sm:text-sm focus:border-primary focus:ring-primary"
               />
-              <span className="absolute inset-y-0 right-2 grid w-8 place-content-center">
-                <button
-                  type="button"
-                  aria-label="Submit"
-                  className="rounded-full p-1.5 text-gray-700 transition-colors hover:bg-gray-100"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth="1.5"
-                    stroke="currentColor"
-                    className="size-4"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
-                    />
-                  </svg>
-                </button>
+              <span className="absolute inset-y-0 right-2 grid w-8 place-content-center text-gray-500">
+                <BsSearch className="size-4" />
               </span>
-            </div>
+            </form>
           </div>
-          {/* contact */}
-          <div className="flex items-center gap-4">
-            <a className="flex items-center gap-2" href="tel:#">
-              <div className="icon-box-icon mr-0 mr-lg-2">
-                <BsTelephone className="w-6 h-6" />
-              </div>
-              <div className="">
-                <h4 className="text-xs mb-1">Phone Number</h4>
-                <p className="text-sm font-bold">0(800) 123-456</p>
-              </div>
+
+          <div className="hidden md:flex items-center gap-5">
+            <a href={`tel:${tel.replace(/[^+\d]/g, "")}`} className="flex items-center gap-2">
+              <BsTelephone className="w-6 h-6 text-primary" />
+              <span>
+                <span className="block text-xs text-gray-500 leading-none mb-1">Phone Number</span>
+                <span className="block text-sm font-bold text-ink">{tel}</span>
+              </span>
             </a>
-            <div className="h-8 w-[1px] bg-gray-300"></div>
-            <a className="flex items-center gap-2" href="tel:#">
-              <div className="icon-box-icon mr-0 mr-lg-2">
-                <BsEnvelope className="w-6 h-6" />
-              </div>
-              <div className="">
-                <h4 className="text-xs mb-1">Email Address</h4>
-                <p className="text-sm font-bold">morephar@gmail.com</p>
-              </div>
+            <div className="h-8 w-px bg-gray-200" aria-hidden />
+            <a href={`mailto:${email}`} className="hidden xl:flex items-center gap-2">
+              <BsEnvelope className="w-6 h-6 text-primary" />
+              <span>
+                <span className="block text-xs text-gray-500 leading-none mb-1">Email Address</span>
+                <span className="block text-sm font-bold text-ink">{email}</span>
+              </span>
             </a>
+            <Link
+              href="/contact"
+              className="bg-primary hover:bg-primary-dark text-white px-5 py-2.5 rounded font-semibold text-sm transition-colors"
+            >
+              Request A Quote
+            </Link>
           </div>
         </div>
       </div>
-      {/* Second row: Navigation menu */}
-      <div className="bg-black">
-        <div className="max-w-[1400px] m-auto md:block ">
-          <div className="px-6 py-4">
-            <ul className="items-stretch space-x-12 lg:flex text-white">
-              {links.map((item: NavLink) => (
-                <NavLink key={item.id} {...item} />
+
+      {/* Nav bar */}
+      <nav className="bg-ink text-white">
+        <div className="max-w-[1400px] m-auto px-4 lg:px-6">
+          {/* Desktop */}
+          <ul className="hidden md:flex items-stretch gap-10 text-sm font-medium">
+            <li>
+              <Link href="/" className="flex items-center py-4 hover:text-primary transition-colors">
+                Home
+              </Link>
+            </li>
+            <li className="relative group">
+              <Link
+                href="/product"
+                className="flex items-center gap-1.5 py-4 hover:text-primary transition-colors"
+              >
+                Equipment
+                <FaChevronDown className="w-3 h-3 opacity-70" />
+              </Link>
+              <div className="absolute left-0 top-full z-50 hidden group-hover:block w-72 rounded-b bg-white text-ink shadow-lg">
+                <Link
+                  href="/product"
+                  className="block border-b border-gray-100 px-5 py-3 font-semibold hover:bg-gray-50 hover:text-primary"
+                >
+                  All Equipment
+                </Link>
+                {categories.map((c) => (
+                  <Link
+                    key={c.documentId}
+                    href={`/product/category/${c.slug}`}
+                    className="block px-5 py-3 hover:bg-gray-50 hover:text-primary"
+                  >
+                    {c.name}
+                  </Link>
+                ))}
+              </div>
+            </li>
+            <li>
+              <Link href="/about" className="flex items-center py-4 hover:text-primary transition-colors">
+                About
+              </Link>
+            </li>
+            <li>
+              <Link href="/contact" className="flex items-center py-4 hover:text-primary transition-colors">
+                Contact
+              </Link>
+            </li>
+            <li className="ml-auto">
+              <a
+                href={`mailto:${email}`}
+                className="flex items-center gap-2 py-4 text-sm text-gray-300 hover:text-primary transition-colors"
+              >
+                <BsEnvelope className="w-4 h-4" />
+                {email}
+              </a>
+            </li>
+          </ul>
+
+          {/* Mobile */}
+          <details className="md:hidden">
+            <summary className="flex cursor-pointer list-none items-center gap-2 py-3.5 font-semibold">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+              </svg>
+              Menu
+            </summary>
+            <div className="space-y-0.5 pb-4 text-sm">
+              <Link href="/" className="block rounded px-2 py-2.5 hover:bg-white/10">Home</Link>
+              <Link href="/product" className="block rounded px-2 py-2.5 hover:bg-white/10">All Equipment</Link>
+              {categories.map((c) => (
+                <Link key={c.documentId} href={`/product/category/${c.slug}`} className="block rounded px-2 py-2.5 pl-6 text-gray-300 hover:bg-white/10 hover:text-white">
+                  {c.name}
+                </Link>
               ))}
-            </ul>
-          </div>
+              <Link href="/about" className="block rounded px-2 py-2.5 hover:bg-white/10">About</Link>
+              <Link href="/contact" className="block rounded px-2 py-2.5 hover:bg-white/10">Contact</Link>
+            </div>
+          </details>
         </div>
-      </div>
+      </nav>
     </div>
   );
 }

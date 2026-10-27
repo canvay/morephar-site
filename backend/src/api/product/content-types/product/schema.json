@@ -28,6 +28,27 @@
     "name": {
       "type": "string"
     },
+    "model": {
+      "type": "string"
+    },
+    "condition": {
+      "type": "enumeration",
+      "enum": [
+        "New",
+        "Used"
+      ],
+      "default": "New"
+    },
+    "featured": {
+      "type": "boolean",
+      "default": false
+    },
+    "categories": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::category.category",
+      "inversedBy": "products"
+    },
     "cover": {
       "type": "media",
       "multiple": false,

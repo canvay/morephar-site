@@ -1,141 +1,101 @@
-import React from "react";
-import { fetchAPI } from "@/app/[lang]/utils/fetch-api";
-import { getStrapiMedia } from "../utils/api-helpers";
-import Image from "next/image";
 import Link from "next/link";
-import Heading from "../components/Heading";
+import { getCategories, getProductCountByCategory, getProducts } from "../utils/get-products";
+import ProductCard from "../components/ProductCard";
 
-async function getProducts() {
-  const token = process.env.NEXT_PUBLIC_STRAPI_API_TOKEN;
-  const path = `/products`;
-  const urlParamsObject = {
-    populate: ["cover"],
+export default async function PageRoute({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ lang: string }>;
+  searchParams: Promise<{ category?: string; condition?: string; q?: string }>;
+}) {
+  const { lang } = await params;
+  const sp = await searchParams;
+
+  const [products, categories, counts] = await Promise.all([
+    getProducts({ categorySlug: sp.category, condition: sp.condition, q: sp.q }).catch(() => []),
+    getCategories().catch(() => []),
+    getProductCountByCategory().catch((): Record<string, number> => ({})),
+  ]);
+
+  const conditionLink = (condition?: string) => {
+    const sp2 = new URLSearchParams();
+    if (sp.category) sp2.set("category", sp.category);
+    if (condition) sp2.set("condition", condition);
+    const qs = sp2.toString();
+    return `/${lang}/product${qs ? `?${qs}` : ""}`;
   };
-  const options = { headers: { Authorization: `Bearer ${token}` } };
-  const response = await fetchAPI(path, urlParamsObject, options);
-  return response;
-}
 
-// 模拟产品数据
-const productData = [
-  {
-    id: 1,
-    name: "Can Seamer",
-    model: "E-4266",
-    image: "/products/can-seamer.jpg",
-    condition: "New",
-  },
-  {
-    id: 2,
-    name: "CountRite™ Gummy Bagger",
-    model: "",
-    image: "/products/gummy-bagger.jpg",
-    condition: "New",
-  },
-  {
-    id: 3,
-    name: "CountRite™ Gusseted Bag Counter",
-    model: "",
-    image: "/products/bag-counter.jpg",
-    condition: "New",
-  },
-  {
-    id: 4,
-    name: "GoPacker 1000",
-    model: "",
-    image: "/products/gopacker.jpg",
-    condition: "Used",
-  },
-  {
-    id: 5,
-    name: "New CPT SP50 Dual Fill Stick Packer",
-    model: "",
-    image: "/products/dual-fill.jpg",
-    condition: "New",
-  },
-  {
-    id: 6,
-    name: "New CPT SP50 Powder Stick Pack/Bagger",
-    model: "",
-    image: "/products/powder-stick.jpg",
-    condition: "New",
-  },
-];
-
-export default async function PageRoute() {
-  // const [filters, setFilters] = useState({
-  //   new: false,
-  //   used: false,
-  // });
-
-  const res = await getProducts();
-  console.log("🚀 ~ PageRoute ~ res:", res);
-
-  // 根据筛选条件过滤产品
-  const filteredProducts = res.data || [];
-
-  // 处理筛选条件变化
-  const handleFilterChange = (filterName: "new" | "used") => {
-    // setFilters((prev) => ({
-    //   ...prev,
-    //   [filterName]: !prev[filterName],
-    // }));
-  };
+  const conditionLabel = sp.condition === "New" || sp.condition === "Used" ? sp.condition : "All";
 
   return (
-    <div className="max-w-[1400px] m-auto py-6">
-      <div className="flex flex-col md:flex-row gap-8">
-        {/* 左侧筛选区域 */}
-        <div className="w-full md:w-1/4 mb-6 md:mb-0">
-          <div className="p-6 rounded-lg">
-            <h3 className="text-xl font-bold mb-4">Product Condition</h3>
-            <div className="space-y-2">
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="condition-new"
-                  className="mr-2"
-                  // checked={filters.new}
-                  // onChange={() => handleFilterChange("new")}
-                />
-                <label htmlFor="condition-new">New (6)</label>
-              </div>
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="condition-used"
-                  className="mr-2"
-                  // checked={filters.used}
-                  // onChange={() => handleFilterChange("used")}
-                />
-                <label htmlFor="condition-used">Used (3)</label>
-              </div>
-            </div>
-          </div>
-        </div>
+    <div className="max-w-[1400px] m-auto px-4 py-8 lg:px-6">
+      <div className="flex flex-col gap-10 md:flex-row">
+        {/* Sidebar */}
+        <aside className="w-full shrink-0 md:w-64">
+          <div className="rounded-lg border border-gray-200 p-6">
+            <h3 className="mb-4 text-lg font-bold text-ink">Categories</h3>
+            <ul className="space-y-1.5 text-sm">
+              <li>
+                <Link
+                  href={`/${lang}/product${sp.condition ? `?condition=${sp.condition}` : ""}`}
+                  className={`block rounded px-3 py-2 transition ${
+                    !sp.category ? "bg-primary/10 font-semibold text-primary" : "text-gray-600 hover:bg-gray-50"
+                  }`}
+                >
+                  All Equipment
+                </Link>
+              </li>
+              {categories.map((c) => (
+                <li key={c.documentId}>
+                  <Link
+                    href={`/${lang}/product/category/${c.slug}${sp.condition ? `?condition=${sp.condition}` : ""}`}
+                    className={`flex items-center justify-between rounded px-3 py-2 transition ${
+                      sp.category === c.slug ? "bg-primary/10 font-semibold text-primary" : "text-gray-600 hover:bg-gray-50"
+                    }`}
+                  >
+                    <span>{c.name}</span>
+                    <span className="text-xs text-gray-400">{counts[c.slug] ?? 0}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
 
-        {/* 右侧产品展示区域 */}
-        <div className="w-full md:w-3/4">
-          <h1 className="text-3xl font-bold my-6">Productions</h1>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredProducts.map((product: any) => (
-              <Link
-                href={`/product/${product.slug}`}
-                key={product.id}
-                className="mb-16 cursor-pointer hover:opacity-80 transition-opacity"
-              >
-                <div className="relative w-48 h-48 mb-8">
-                  <Image
-                    src={getStrapiMedia(product.cover.url) as string}
-                    alt={product.name}
-                    className="object-contain"
-                    fill
-                  />
-                </div>
-                <h3 className="text-lg font-semibold">{product.name}</h3>
-              </Link>
-            ))}
+            <h3 className="mb-4 mt-8 text-lg font-bold text-ink">Condition</h3>
+            <ul className="space-y-1.5 text-sm">
+              {["All", "New", "Used"].map((c) => (
+                <li key={c}>
+                  <Link
+                    href={conditionLink(c === "All" ? undefined : c)}
+                    className={`block rounded px-3 py-2 transition ${
+                      conditionLabel === c ? "bg-primary/10 font-semibold text-primary" : "text-gray-600 hover:bg-gray-50"
+                    }`}
+                  >
+                    {c === "All" ? "All Conditions" : c}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
+        </aside>
+
+        {/* Products */}
+        <div className="w-full">
+          <h1 className="text-3xl font-bold text-ink">
+            {sp.q ? `Search: "${sp.q}"` : sp.condition ? `${sp.condition} Equipment` : "Productions"}
+          </h1>
+          <p className="mt-2 text-sm text-gray-500">
+            {products.length} {products.length === 1 ? "item" : "items"} available
+          </p>
+          {products.length === 0 ? (
+            <p className="py-16 text-center text-gray-500">No equipment found.</p>
+          ) : (
+            <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+              {products.map((p) => (
+                <ProductCard key={p.documentId} data={p} lang={lang} />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
