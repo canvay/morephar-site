@@ -7,7 +7,14 @@ async function getProductBySlug(slug: string) {
     const urlParamsObject = {
         filters: { slug },
         populate: {
-            detail: { populate: '*' },
+            detail: {
+                populate: {
+                    pictures: {
+                        fields: ["url", "alternativeText", "caption", "width", "height"],
+                    },
+                    information: "*",
+                },
+            },
         },
     };
     const options = { headers: { Authorization: `Bearer ${token}` } };

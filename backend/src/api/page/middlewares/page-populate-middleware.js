@@ -5,14 +5,18 @@
  * Strapi 5: dynamic zones are populated per-component with the `on` syntax.
  */
 
+const media = {
+  fields: ["url", "alternativeText", "caption", "width", "height"],
+};
+
 const populate = {
   contentSections: {
     on: {
       "sections.hero": {
-        populate: "*"
+        populate: { picture: media, buttons: "*" }
       },
       "sections.slider": {
-        populate: "*"
+        populate: { files: media }
       },
       "sections.heading": {
         populate: "*"
@@ -20,49 +24,14 @@ const populate = {
       "sections.banners": {
         populate: {
           banner: {
-            populate: "*"
+            populate: { picture: media }
           }
         }
       },
       "sections.featured-products": {
         populate: {
           products: {
-            populate: "*"
-          }
-        }
-      },
-      "sections.features": {
-        populate: {
-          feature: {
-            populate: "*"
-          }
-        }
-      },
-      "sections.feature-columns-group": {
-        populate: {
-          features: {
-            populate: "*"
-          }
-        }
-      },
-      "sections.feature-rows-group": {
-        populate: {
-          features: {
-            populate: "*"
-          }
-        }
-      },
-      "sections.testimonials-group": {
-        populate: {
-          testimonials: {
-            populate: "*"
-          }
-        }
-      },
-      "sections.pricing": {
-        populate: {
-          plans: {
-            populate: "*"
+            populate: { cover: media }
           }
         }
       },
@@ -78,15 +47,15 @@ const populate = {
       },
       "sections.large-video": {
         populate: {
-          video: "*",
-          poster: "*"
+          video: media,
+          poster: media
         }
       },
     }
   },
   seo: {
     fields: ["metaTitle", "metaDescription"],
-    populate: { shareImage: true }
+    populate: { shareImage: media }
   }
 };
 
