@@ -9,6 +9,10 @@ import Footer from "./components/Footer";
 import Navbar, { type NavCategory } from "./components/Navbar";
 import { FALLBACK_SEO } from "@/app/[lang]/utils/constants";
 
+// 页面内容全部来自 Strapi（导航/页脚/产品），必须请求时渲染；
+// 否则 Docker build 的静态预渲染阶段会因 Strapi 不可达而失败。
+export const dynamic = "force-dynamic";
+
 
 async function getGlobal(lang: string): Promise<any> {
   const token = process.env.NEXT_PUBLIC_STRAPI_API_TOKEN;

@@ -1,0 +1,60 @@
+# Morephar 站点 - Docker Compose 生产编排
+# 用法:
+#   1. 复制 .env.example 为 .env 并填入真实值 (cp .env.example .env)
+#   2. docker compose build
+#   3. docker compose up -d
+#
+# 数据持久化: Strapi 的 SQLite 库 (.tmp) 与上传媒体 (public/uploads)
+# 通过命名卷保存，重建容器不会丢数据。
+
+services:
+  strapi:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    environment:
+      HOST: 0.0.0.0
+      PORT: 1337
+      NODE_ENV: production
+      APP_KEYS: ${APP_KEYS}
+      API_TOKEN_SALT: ${API_TOKEN_SALT}
+      ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET}
+      JWT_SECRET: ${JWT_SECRET}
+      TRANSFER_TOKEN_SALT: ${TRANSFER_TOKEN_SALT}
+      STRAPI_URL: ${STRAPI_URL}
+    volumes:
+      - strapi_data:/app/.tmp
+      - strapi_uploads:/app/public/uploads
+    expose:
+      - "1337"
+    # 如需从服务器本机直接访问后端调试，可临时改为 ports: ["1337:1337"]
+
+  next:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_STRAPI_API_URL: ${NEXT_PUBLIC_STRAPI_API_URL}
+        NEXT_PUBLIC_STRAPI_API_TOKEN: ${NEXT_PUBLIC_STRAPI_API_TOKEN}
+        NEXT_PUBLIC_STRAPI_FORM_SUBMISSION_TOKEN: ${NEXT_PUBLIC_STRAPI_FORM_SUBMISSION_TOKEN}
+        NEXT_PUBLIC_PAGE_LIMIT: ${NEXT_PUBLIC_PAGE_LIMIT}
+    restart: unless-stopped
+    expose:
+      - "3000"
+
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    depends_on:
+      - strapi
+      - next
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+      - ./nginx/www:/var/www/certbot:ro
+
+volumes:
+  strapi_data:
+  strapi_uploads:
