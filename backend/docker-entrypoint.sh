@@ -6,21 +6,31 @@ set -e
 
 echo "[entrypoint] 准备运行时目录与权限 ..."
 mkdir -p /app/.tmp /app/public/uploads
-# 强制放开 public / .tmp 权限，避免 strapi import 恢复 assets 时因属主/权限失败
-# （容器以 root 运行，故直接 chown 到 root 并 777）
-chown -R root:root /app/public /app/.tmp 2>/dev/null || true
-chmod -R 777 /app/public /app/.tmp 2>/dev/null || true
 
 SEED="/app/seed-data.tar.gz"
 FLAG="/app/.tmp/.seeded"
+LOG="/app/.tmp/import.log"
 
 if [ -f "$SEED" ] && [ ! -f "$FLAG" ]; then
   echo "[entrypoint] 首次启动：从 $SEED 导入种子数据 ..."
-  if npx strapi import -f "$SEED" --force; then
+  # 先把诊断信息 + strapi 完整报错写进日志，便于排查（/app/.tmp 为持久卷，可 docker exec 读取）
+  {
+    echo "==== import diagnostics $(date) ===="
+    echo "uid/gid: $(id)"
+    echo "pwd: $(pwd)"
+    echo "--- perms ---"
+    ls -ld /app/public /app/public/uploads /app/.tmp
+    echo "--- write test (as $(id -u)) ---"
+    if touch /app/public/.wtest 2>/dev/null; then echo "public writable: YES"; rm -f /app/public/.wtest; else echo "public writable: NO ($?)"; fi
+    if touch /app/.tmp/.wtest 2>/dev/null; then echo ".tmp writable: YES"; rm -f /app/.tmp/.wtest; else echo ".tmp writable: NO ($?)"; fi
+    echo "--- running: npx strapi import -f $SEED --force ---"
+  } > "$LOG" 2>&1
+
+  if npx strapi import -f "$SEED" --force >> "$LOG" 2>&1; then
     echo "[entrypoint] 种子导入成功"
     touch "$FLAG"
   else
-    echo "[entrypoint][ERROR] 种子导入失败，请查看上方 strapi 报错；下次容器启动将自动重试"
+    echo "[entrypoint][ERROR] 种子导入失败，完整日志：docker exec <strapi容器> cat /app/.tmp/import.log"
   fi
 else
   echo "[entrypoint] 跳过种子导入（已导入过，或镜像未包含 $SEED）"
