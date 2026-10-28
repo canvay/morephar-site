@@ -1,5 +1,5 @@
 # GitHub Actions - 仅构建并部署后端 Strapi
-# 运行环境: 腾讯云 CVM 上的 self-hosted runner（构建/推送/运行全在国内，推 TCR 不再跨国超时）
+# 运行环境: 腾讯云 CVM 上的 self-hosted runner（镜像本机构建并直接运行，无需推送镜像仓库，避开低带宽上传瓶颈）
 #
 # 用途:
 #   1. 首次引导: 先跑本流程部署后端 -> 进 http://<IP>/admin 生成 API Token
@@ -11,10 +11,10 @@
 #   - 或 push 到 main 且改动 backend/ 或 docker-compose.prod.yml 或 nginx/
 #
 # 所需 Secrets:
-#   REGISTRY / REGISTRY_NAMESPACE / REGISTRY_USERNAME / REGISTRY_PASSWORD (镜像仓库 TCR)
 #   APP_KEYS / API_TOKEN_SALT / ADMIN_JWT_SECRET / JWT_SECRET / TRANSFER_TOKEN_SALT / STRAPI_URL
 #     （Strapi 运行时密钥，由本流程在 runner 上用 Secrets 生成 .env，不再依赖服务器手建 .env）
-#   注意: 本流程不需要 NEXT_PUBLIC_* (那是前端构建用的)
+#   注意: 本流程不需要 NEXT_PUBLIC_* (那是前端构建用的)，也不需要 TCR 相关 Secrets
+#         （镜像仅在 CVM 本机构建并直接运行，不推送镜像仓库）
 #   SSH_* 系列 Secrets 已不再需要（runner 即服务器本身，无需 SSH/SCP）
 
 name: Deploy Backend (Strapi)
@@ -28,25 +28,18 @@ on:
       - 'docker-compose.prod.yml'
       - 'nginx/**'
 
-env:
-  REGISTRY: ${{ secrets.REGISTRY }}
-  REGISTRY_NAMESPACE: ${{ secrets.REGISTRY_NAMESPACE }}
-  IMAGE_PREFIX: ${{ secrets.REGISTRY }}/${{ secrets.REGISTRY_NAMESPACE }}
-
 jobs:
   deploy:
-    name: Build, push & run Strapi (self-hosted)
+    name: Build & run Strapi (self-hosted, 本地镜像)
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
 
       # runner 每次 checkout 是干净目录，服务器上手建的 .env 不会自动出现，
-      # 故用 Secrets 在本地生成 .env，供 docker compose 解析 APP_KEYS / REGISTRY 等变量。
+      # 故用 Secrets 在本地生成 .env，供 docker compose 解析 Strapi 运行时变量。
       - name: Generate .env from secrets
         run: |
           cat > .env <<'EOF'
-          REGISTRY=${{ secrets.REGISTRY }}
-          REGISTRY_NAMESPACE=${{ secrets.REGISTRY_NAMESPACE }}
           APP_KEYS=${{ secrets.APP_KEYS }}
           API_TOKEN_SALT=${{ secrets.API_TOKEN_SALT }}
           ADMIN_JWT_SECRET=${{ secrets.ADMIN_JWT_SECRET }}
@@ -55,16 +48,12 @@ jobs:
           STRAPI_URL=${{ secrets.STRAPI_URL }}
           EOF
 
-      - name: Log in to registry
-        run: echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login "$REGISTRY" -u "${{ secrets.REGISTRY_USERNAME }}" --password-stdin
-
-      - name: Build & push Strapi image
+      - name: Build Strapi image (本地)
         run: |
           docker build \
             --build-arg ALPINE_MIRROR=https://mirrors.tencent.com \
             --build-arg NPM_REGISTRY=https://registry.npmmirror.com \
-            -t "$IMAGE_PREFIX/morephar-strapi:latest" ./backend
-          docker push "$IMAGE_PREFIX/morephar-strapi:latest"
+            -t morephar-strapi:latest ./backend
 
       - name: Run strapi + nginx
         run: |

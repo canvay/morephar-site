@@ -1,17 +1,14 @@
-# 生产编排（CI 构建并推送到镜像仓库，服务器只 pull + run）
+# 生产编排（self-hosted runner 在 CVM 本机构建镜像并直接运行，无需镜像仓库）
 # 用法:
-#   docker compose -f docker-compose.prod.yml pull
 #   docker compose -f docker-compose.prod.yml up -d
 #
-# 镜像地址 = ${REGISTRY}/${REGISTRY_NAMESPACE}/morephar-<svc>:latest
-# 需在服务器 .env 中设置 REGISTRY 与 REGISTRY_NAMESPACE，例如:
-#   REGISTRY=ccr.ccs.tencentyun.com
-#   REGISTRY_NAMESPACE=your-tcr-namespace
-# （TCR 企业版/标准版实例域名形如 xxx.tencentcloudcr.com，按实际替换 REGISTRY）
+# 镜像为本地标签 morephar-strapi:latest / morephar-next:latest，
+# 由 CI 在 runner 本机 build 产出，docker compose 直接使用本地镜像（不会去远程拉取）。
+# nginx 仍从 Docker Hub 拉取（CVM 已配置国内镜像加速器）。
 
 services:
   strapi:
-    image: ${REGISTRY:-ccr.ccs.tencentyun.com}/${REGISTRY_NAMESPACE:-your-namespace}/morephar-strapi:latest
+    image: morephar-strapi:latest
     restart: unless-stopped
     environment:
       HOST: 0.0.0.0
@@ -30,7 +27,7 @@ services:
       - "1337"
 
   next:
-    image: ${REGISTRY:-ccr.ccs.tencentyun.com}/${REGISTRY_NAMESPACE:-your-namespace}/morephar-next:latest
+    image: morephar-next:latest
     restart: unless-stopped
     environment:
       # 服务端 fetch 直连 Strapi 容器（公网 NEXT_PUBLIC_STRAPI_API_URL 只对浏览器有效）

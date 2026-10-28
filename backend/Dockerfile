@@ -19,6 +19,12 @@ COPY . .
 # 生产构建（会编译管理后台）
 RUN yarn build
 
+# 瘦身：构建完成后仅保留生产依赖，移除 devDependencies 与 yarn 缓存，显著减小镜像体积
+# （Strapi 运行只需 production deps；better-sqlite3 原生模块会在重装时重新编译，已在镜像内）
+RUN npm_config_registry="$NPM_REGISTRY" YARN_NPM_REGISTRY_SERVER="$NPM_REGISTRY" \
+      yarn install --production --frozen-lockfile \
+ && yarn cache clean
+
 ENV NODE_ENV=production
 
 EXPOSE 1337

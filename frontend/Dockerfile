@@ -24,6 +24,11 @@ ENV NEXT_PUBLIC_PAGE_LIMIT=$NEXT_PUBLIC_PAGE_LIMIT
 
 RUN yarn build
 
+# 瘦身：构建完成后仅保留生产依赖并清理 yarn 缓存，减小镜像体积（加速 push 到 TCR）
+RUN npm_config_registry="$NPM_REGISTRY" YARN_NPM_REGISTRY_SERVER="$NPM_REGISTRY" \
+      yarn install --production --frozen-lockfile \
+ && yarn cache clean
+
 ENV NODE_ENV=production
 
 EXPOSE 3000

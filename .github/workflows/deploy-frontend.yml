@@ -1,5 +1,5 @@
 # GitHub Actions - 仅构建(含 NEXT_PUBLIC_*)并部署前端 Next.js
-# 运行环境: 腾讯云 CVM 上的 self-hosted runner（构建/推送/运行全在国内）
+# 运行环境: 腾讯云 CVM 上的 self-hosted runner（镜像本机构建并直接运行，无需推送镜像仓库）
 #
 # 前置: 后端已部署，且以下 Secrets 已就绪:
 #   NEXT_PUBLIC_STRAPI_API_TOKEN / NEXT_PUBLIC_STRAPI_FORM_SUBMISSION_TOKEN
@@ -10,41 +10,34 @@
 #   - 或 push 到 main 且改动 frontend/ 或 docker-compose.prod.yml 或 nginx/
 #
 # 所需 Secrets:
-#   REGISTRY / REGISTRY_NAMESPACE / REGISTRY_USERNAME / REGISTRY_PASSWORD (镜像仓库 TCR)
 #   NEXT_PUBLIC_STRAPI_API_URL / _API_TOKEN / _FORM_SUBMISSION_TOKEN / _PAGE_LIMIT (前端构建期写死)
 #   APP_KEYS / API_TOKEN_SALT / ADMIN_JWT_SECRET / JWT_SECRET / TRANSFER_TOKEN_SALT / STRAPI_URL
 #     （strapi 服务运行时密钥；本流程 up -d strapi 时 compose 需要，故同样在本地生成 .env）
+#   注意: 不需要 TCR 相关 Secrets（镜像仅在 CVM 本机构建并直接运行，不推送镜像仓库）
 #   SSH_* 系列 Secrets 已不再需要
 
 name: Deploy Frontend (Next.js)
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - 'frontend/**'
-      - 'docker-compose.prod.yml'
-      - 'nginx/**'
-
-env:
-  REGISTRY: ${{ secrets.REGISTRY }}
-  REGISTRY_NAMESPACE: ${{ secrets.REGISTRY_NAMESPACE }}
-  IMAGE_PREFIX: ${{ secrets.REGISTRY }}/${{ secrets.REGISTRY_NAMESPACE }}
+  # push:
+  #   branches: [main]
+  #   paths:
+  #     - 'frontend/**'
+  #     - 'docker-compose.prod.yml'
+  #     - 'nginx/**'
 
 jobs:
   deploy:
-    name: Build, push & run Next (self-hosted)
+    name: Build & run Next (self-hosted, 本地镜像)
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
 
-      # 同后端：用 Secrets 在 runner 本地生成 .env（含 strapi 运行时密钥 + REGISTRY 前缀）
+      # 同后端：用 Secrets 在 runner 本地生成 .env（含 strapi 运行时密钥）
       - name: Generate .env from secrets
         run: |
           cat > .env <<'EOF'
-          REGISTRY=${{ secrets.REGISTRY }}
-          REGISTRY_NAMESPACE=${{ secrets.REGISTRY_NAMESPACE }}
           APP_KEYS=${{ secrets.APP_KEYS }}
           API_TOKEN_SALT=${{ secrets.API_TOKEN_SALT }}
           ADMIN_JWT_SECRET=${{ secrets.ADMIN_JWT_SECRET }}
@@ -53,10 +46,7 @@ jobs:
           STRAPI_URL=${{ secrets.STRAPI_URL }}
           EOF
 
-      - name: Log in to registry
-        run: echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login "$REGISTRY" -u "${{ secrets.REGISTRY_USERNAME }}" --password-stdin
-
-      - name: Build & push Next image
+      - name: Build Next image (本地)
         run: |
           docker build \
             --build-arg NPM_REGISTRY=https://registry.npmmirror.com \
@@ -64,8 +54,7 @@ jobs:
             --build-arg NEXT_PUBLIC_STRAPI_API_TOKEN="${{ secrets.NEXT_PUBLIC_STRAPI_API_TOKEN }}" \
             --build-arg NEXT_PUBLIC_STRAPI_FORM_SUBMISSION_TOKEN="${{ secrets.NEXT_PUBLIC_STRAPI_FORM_SUBMISSION_TOKEN }}" \
             --build-arg NEXT_PUBLIC_PAGE_LIMIT="${{ secrets.NEXT_PUBLIC_PAGE_LIMIT || '6' }}" \
-            -t "$IMAGE_PREFIX/morephar-next:latest" ./frontend
-          docker push "$IMAGE_PREFIX/morephar-next:latest"
+            -t morephar-next:latest ./frontend
 
       - name: Run next + nginx
         run: |
