@@ -16,6 +16,10 @@ RUN npm_config_registry="$NPM_REGISTRY" YARN_NPM_REGISTRY_SERVER="$NPM_REGISTRY"
 
 COPY . .
 
+# 种子数据：构建时把 seed 包打进镜像（.dockerignore 未排除，构建上下文需包含该文件）；
+# 容器首次启动由 docker-entrypoint.sh 自动导入。数据不能写在 /app/.tmp（被 strapi_data 卷覆盖）。
+COPY seed-data.tar.gz /app/seed-data.tar.gz
+
 # 生产构建（会编译管理后台）
 RUN yarn build
 

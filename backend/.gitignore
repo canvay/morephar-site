@@ -41,6 +41,8 @@ $RECYCLE.BIN/
 *.dat
 *.dmg
 *.gz
+# 例外：backend/seed-data.tar.gz 为有意入库的部署种子（首次启动由 entrypoint 自动导入）
+!seed-data.tar.gz
 *.iso
 *.jar
 *.rar
