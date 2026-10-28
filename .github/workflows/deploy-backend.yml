@@ -1,4 +1,5 @@
 # GitHub Actions - 仅构建并部署后端 Strapi
+# 运行环境: 腾讯云 CVM 上的 self-hosted runner（构建/推送/运行全在国内，推 TCR 不再跨国超时）
 #
 # 用途:
 #   1. 首次引导: 先跑本流程部署后端 -> 进 http://<IP>/admin 生成 API Token
@@ -10,9 +11,11 @@
 #   - 或 push 到 main 且改动 backend/ 或 docker-compose.prod.yml 或 nginx/
 #
 # 所需 Secrets:
-#   REGISTRY / REGISTRY_NAMESPACE / REGISTRY_USERNAME / REGISTRY_PASSWORD (镜像仓库)
-#   SSH_HOST / SSH_USERNAME / SSH_PRIVATE_KEY / SSH_PORT(可选)                (服务器登录)
+#   REGISTRY / REGISTRY_NAMESPACE / REGISTRY_USERNAME / REGISTRY_PASSWORD (镜像仓库 TCR)
+#   APP_KEYS / API_TOKEN_SALT / ADMIN_JWT_SECRET / JWT_SECRET / TRANSFER_TOKEN_SALT / STRAPI_URL
+#     （Strapi 运行时密钥，由本流程在 runner 上用 Secrets 生成 .env，不再依赖服务器手建 .env）
 #   注意: 本流程不需要 NEXT_PUBLIC_* (那是前端构建用的)
+#   SSH_* 系列 Secrets 已不再需要（runner 即服务器本身，无需 SSH/SCP）
 
 name: Deploy Backend (Strapi)
 
@@ -29,14 +32,28 @@ env:
   REGISTRY: ${{ secrets.REGISTRY }}
   REGISTRY_NAMESPACE: ${{ secrets.REGISTRY_NAMESPACE }}
   IMAGE_PREFIX: ${{ secrets.REGISTRY }}/${{ secrets.REGISTRY_NAMESPACE }}
-  DEPLOY_DIR: /var/www/morephar
 
 jobs:
-  build-and-push:
-    name: Build & push Strapi image
-    runs-on: ubuntu-latest
+  deploy:
+    name: Build, push & run Strapi (self-hosted)
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
+
+      # runner 每次 checkout 是干净目录，服务器上手建的 .env 不会自动出现，
+      # 故用 Secrets 在本地生成 .env，供 docker compose 解析 APP_KEYS / REGISTRY 等变量。
+      - name: Generate .env from secrets
+        run: |
+          cat > .env <<'EOF'
+          REGISTRY=${{ secrets.REGISTRY }}
+          REGISTRY_NAMESPACE=${{ secrets.REGISTRY_NAMESPACE }}
+          APP_KEYS=${{ secrets.APP_KEYS }}
+          API_TOKEN_SALT=${{ secrets.API_TOKEN_SALT }}
+          ADMIN_JWT_SECRET=${{ secrets.ADMIN_JWT_SECRET }}
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          TRANSFER_TOKEN_SALT=${{ secrets.TRANSFER_TOKEN_SALT }}
+          STRAPI_URL=${{ secrets.STRAPI_URL }}
+          EOF
 
       - name: Log in to registry
         run: echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login "$REGISTRY" -u "${{ secrets.REGISTRY_USERNAME }}" --password-stdin
@@ -46,60 +63,9 @@ jobs:
           docker build -t "$IMAGE_PREFIX/morephar-strapi:latest" ./backend
           docker push "$IMAGE_PREFIX/morephar-strapi:latest"
 
-  deploy:
-    name: Push config & run on CVM
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    steps:
-      # 仅为拿到 docker-compose.prod.yml / nginx/nginx.conf 用于 SCP（不会在服务器编译）
-      - uses: actions/checkout@v4
-
-      - name: Ensure remote deploy dir exists
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT || '22' }}
-          script: |
-            set -e
-            mkdir -p ${{ env.DEPLOY_DIR }}/nginx
-
-      # 只拷运行配置，绝不拷整个 nginx/ 目录（会覆盖 certs/www 里的 Let's Encrypt 证书）
-      - name: SCP docker-compose.prod.yml
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT || '22' }}
-          source: "docker-compose.prod.yml"
-          target: "${{ env.DEPLOY_DIR }}"
-
-      - name: SCP nginx.conf (into nginx/ subdir)
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT || '22' }}
-          source: "nginx/nginx.conf"
-          target: "${{ env.DEPLOY_DIR }}/nginx"
-
-      - name: Login, pull & run strapi + nginx
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT || '22' }}
-          script_stop: true
-          script: |
-            set -e
-            cd ${{ env.DEPLOY_DIR }}
-            # 登录镜像仓库以拉取私有镜像（公开镜像可去掉下面这行）
-            echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login "${{ secrets.REGISTRY }}" -u "${{ secrets.REGISTRY_USERNAME }}" --password-stdin
-            docker compose -f docker-compose.prod.yml pull strapi
-            # 先起后端 + 反代，使 /admin 可访问（next 尚未构建，/ 会 502，属正常）
-            docker compose -f docker-compose.prod.yml up -d strapi nginx
-            docker image prune -f
+      - name: Run strapi + nginx
+        run: |
+          set -e
+          # 先起后端 + 反代，使 /admin 可访问（next 尚未构建，/ 会 502，属正常）
+          docker compose -f docker-compose.prod.yml up -d strapi nginx
+          docker image prune -f
