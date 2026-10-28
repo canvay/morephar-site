@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="560" height="120" viewBox="0 0 560 120" role="img" aria-label="Morephare (dark background version)">
+  <!-- Mark: lamp bar + lens pixel + beam + light dot -->
+  <g transform="translate(12,10)">
+    <line x1="58" y1="32" x2="88" y2="6" stroke="#FFFFFF" stroke-width="12"/>
+    <rect x="8" y="38" width="40" height="12" rx="2" fill="#FFFFFF"/>
+    <rect x="52" y="38" width="12" height="12" fill="#38BDF8"/>
+    <rect x="68" y="41" width="6" height="6" fill="#FFFFFF"/>
+    <circle cx="30" cy="76" r="16" fill="#FFFFFF"/>
+  </g>
+  <!-- Wordmark: M in white, orephare in light blue for dark backgrounds -->
+  <text x="132" y="84" font-family="Montserrat,'Poppins','Segoe UI',Arial,sans-serif" font-size="72" font-weight="700" letter-spacing="-1">
+    <tspan fill="#FFFFFF">M</tspan><tspan fill="#60A5FA">orephare</tspan>
+  </text>
+</svg>

@@ -25,9 +25,15 @@ export default function Navbar({
       {/* Top bar: logo / search / contact / quote */}
       <div className="max-w-[1400px] m-auto px-4 lg:px-6">
         <div className="flex items-center justify-between gap-6 py-4">
-          <Link href="/" className="shrink-0 text-2xl md:text-3xl font-bold tracking-tight text-ink">
-            <span className="text-primary">{logoText.slice(0, 4)}</span>
-            {logoText.slice(4)}
+          <Link href="/" className="shrink-0" aria-label={logoText}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/brand/Morephare_wordmark_primary.svg"
+              alt={logoText}
+              width={186}
+              height={40}
+              className="h-9 w-auto md:h-10"
+            />
           </Link>
 
           <div className="hidden lg:block flex-1 max-w-md">

@@ -17,9 +17,14 @@ export default function Footer({
     <footer className="bg-ink text-gray-300">
       <div className="max-w-[1400px] m-auto grid grid-cols-1 gap-10 px-4 py-14 md:grid-cols-2 lg:grid-cols-4 lg:px-6">
         <div>
-          <p className="mb-4 text-2xl font-bold text-white">
-            <span className="text-primary">More</span>phare
-          </p>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/brand/Morephare_wordmark_dark.svg"
+            alt="Morephare"
+            width={186}
+            height={40}
+            className="mb-4 h-9 w-auto"
+          />
           <p className="text-sm leading-6">
             A leader in providing innovative production and packaging solutions
             for pharmaceutical, nutraceutical and food manufacturing — from
