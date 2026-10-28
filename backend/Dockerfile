@@ -29,7 +29,6 @@ ENV NODE_ENV=production
 
 # 种子数据：构建时把 seed 包打进镜像；容器首次启动由 docker-entrypoint.sh 自动导入。
 # 注意：数据不能写在 /app/.tmp（被 strapi_data 卷覆盖），必须在运行时由 entrypoint 导入。
-COPY seed-data.tar.gz /app/seed-data.tar.gz
 COPY docker-entrypoint.sh /app/docker-entrypoint.sh
 RUN chmod +x /app/docker-entrypoint.sh
 
