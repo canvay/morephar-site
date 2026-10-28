@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { getStrapiMedia } from "../utils/api-helpers";
+import { getDictionary, conditionLabel } from "../utils/dictionary";
 import type { ProductItem } from "../utils/get-products";
 
 export default function ProductCard({
@@ -10,6 +11,7 @@ export default function ProductCard({
   data: ProductItem;
   lang?: string;
 }) {
+  const dict = getDictionary(lang);
   const imgUrl = getStrapiMedia(data.cover?.url);
   const isNew = data.condition !== "Used";
 
@@ -39,16 +41,16 @@ export default function ProductCard({
             isNew ? "bg-primary" : "bg-accent"
           }`}
         >
-          {data.condition ?? "New"}
+          {conditionLabel(dict, data.condition)}
         </span>
       </div>
       <div className="flex flex-1 flex-col p-5">
         <h3 className="line-clamp-2 min-h-[3rem] text-base font-semibold text-ink transition group-hover:text-primary">
           {data.name}
         </h3>
-        {data.model && <p className="mt-1 text-sm text-gray-500">Model: {data.model}</p>}
+        {data.model && <p className="mt-1 text-sm text-gray-500">{dict.model}: {data.model}</p>}
         <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-primary">
-          Read more
+          {dict.readMoreLink}
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className="size-3.5">
             <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
           </svg>

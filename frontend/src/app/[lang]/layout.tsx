@@ -31,9 +31,9 @@ async function getGlobal(lang: string): Promise<any> {
   return await fetchAPI(path, urlParamsObject, options);
 }
 
-async function getNavCategories(): Promise<NavCategory[]> {
+async function getNavCategories(lang: string): Promise<NavCategory[]> {
   try {
-    const categories: CategoryItem[] = await getCategories();
+    const categories: CategoryItem[] = await getCategories(lang);
     return categories.map((c) => ({ documentId: c.documentId, name: c.name, slug: c.slug }));
   } catch {
     return [];
@@ -70,7 +70,7 @@ export default async function RootLayout(
     children
   } = props;
 
-  const [global, categories] = await Promise.all([getGlobal(params.lang), getNavCategories()]);
+  const [global, categories] = await Promise.all([getGlobal(params.lang), getNavCategories(params.lang)]);
   // TODO: CREATE A CUSTOM ERROR PAGE
   if (!global.data) return null;
 
@@ -87,11 +87,11 @@ export default async function RootLayout(
   return (
     <html lang={params.lang}>
       <body>
-        <Navbar contact={contactInfo} categories={categories} logoText={logoText} />
+        <Navbar contact={contactInfo} categories={categories} logoText={logoText} lang={params.lang} />
         <main className="bg-white min-h-[60vh]">
           {children}
         </main>
-        <Footer categories={categories} contact={contactInfo} />
+        <Footer categories={categories} contact={contactInfo} lang={params.lang} />
       </body>
     </html>
   );

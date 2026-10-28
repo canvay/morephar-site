@@ -13,13 +13,13 @@ interface Image {
 }
 
 interface Props {
-    // Define your props here
     pictures: Image[]
-
+    photosText?: string
 }
 
 const ImageSlider2: React.FC<Props> = ({
-    pictures
+    pictures,
+    photosText = "Photos available on request",
 }) => {
     const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
     if (!pictures || pictures.length === 0) {
@@ -30,7 +30,7 @@ const ImageSlider2: React.FC<Props> = ({
                         <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3.75 21h16.5A1.5 1.5 0 0 0 21.75 19.5V4.5A1.5 1.5 0 0 0 20.25 3H3.75A1.5 1.5 0 0 0 2.25 4.5v15A1.5 1.5 0 0 0 3.75 21Z" />
                     </svg>
                 </div>
-                <p className="mt-3 text-center text-sm text-gray-400">Photos available on request</p>
+                <p className="mt-3 text-center text-sm text-gray-400">{photosText}</p>
             </div>
         );
     }

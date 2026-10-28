@@ -3,6 +3,7 @@ import ImageSlider2 from "../components/ImageSlider2";
 import RichText from "../components/RichText";
 import ProductInfoTable from "../components/ProductInfoTable";
 import Link from "next/link";
+import { getDictionary, conditionLabel } from "../utils/dictionary";
 
 interface ProductProps {
   data: {
@@ -16,9 +17,11 @@ interface ProductProps {
       information?: Array<{ label: string; value: string }>;
     };
   };
+  lang?: string;
 }
 
-const Product: React.FC<ProductProps> = ({ data }) => {
+const Product: React.FC<ProductProps> = ({ data, lang = "en" }) => {
+  const dict = getDictionary(lang);
   const detail = data.detail ?? { pictures: [], information: [] };
   const pictures = detail.pictures ?? [];
   const condition = data.condition ?? "New";
@@ -27,7 +30,7 @@ const Product: React.FC<ProductProps> = ({ data }) => {
   return (
     <div>
       <div className="flex flex-col md:flex-row gap-8">
-        <ImageSlider2 pictures={pictures} />
+        <ImageSlider2 pictures={pictures} photosText={dict.photosAvailable} />
         {/* 右侧 - 商品介绍区域 */}
         <div className="w-full md:w-1/2">
           <span
@@ -35,25 +38,25 @@ const Product: React.FC<ProductProps> = ({ data }) => {
               isNew ? "bg-primary" : "bg-accent"
             }`}
           >
-            {condition}
+            {conditionLabel(dict, condition)}
           </span>
           <h1 className="text-3xl font-bold mb-2 mt-3 text-ink">
             {detail.title || data.name}
           </h1>
-          {data.model && <p className="mb-4 text-gray-500">Model: {data.model}</p>}
+          {data.model && <p className="mb-4 text-gray-500">{dict.model}: {data.model}</p>}
           <RichText content={detail.content || ""} />
           <div className="mt-6 flex flex-wrap gap-4">
             <Link
-              href="/contact"
+              href={`/${lang}/contact`}
               className="rounded bg-primary px-8 py-3 font-semibold text-white transition hover:bg-primary-dark"
             >
-              Request A Quote
+              {dict.requestQuote}
             </Link>
             <Link
-              href="/en/product"
+              href={`/${lang}/product`}
               className="rounded border-2 border-ink px-8 py-3 font-semibold text-ink transition hover:bg-ink hover:text-white"
             >
-              Back to Equipment
+              {dict.backToEquipment}
             </Link>
           </div>
         </div>

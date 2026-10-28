@@ -26,9 +26,10 @@ export async function getProducts(opts: {
   categorySlug?: string;
   condition?: string;
   q?: string;
+  locale?: string;
   limit?: number;
 } = {}): Promise<ProductItem[]> {
-  const { categorySlug, condition, q, limit } = opts;
+  const { categorySlug, condition, q, locale, limit } = opts;
   const filters: Record<string, unknown> = {};
   if (categorySlug) filters.categories = { slug: { $eq: categorySlug } };
   if (condition) filters.condition = { $eq: condition };
@@ -40,6 +41,7 @@ export async function getProducts(opts: {
       filters,
       sort: ["createdAt:desc"],
       pagination: { pageSize: limit ?? 100 },
+      locale: locale && locale !== "en" ? locale : "en",
       populate: {
         cover: { fields: ["url", "alternativeText"] },
         categories: { fields: ["name", "slug"] },
@@ -50,11 +52,12 @@ export async function getProducts(opts: {
   return res.data ?? [];
 }
 
-export async function getProductCountByCategory(): Promise<Record<string, number>> {
+export async function getProductCountByCategory(locale = "en"): Promise<Record<string, number>> {
   const res = await fetchAPI(
     "/categories",
     {
       pagination: { pageSize: 100 },
+      locale: locale && locale !== "en" ? locale : "en",
       populate: { products: { fields: ["documentId"] } },
     },
     authHeaders()
@@ -66,10 +69,14 @@ export async function getProductCountByCategory(): Promise<Record<string, number
   return counts;
 }
 
-export async function getCategories(): Promise<CategoryItem[]> {
+export async function getCategories(locale = "en"): Promise<CategoryItem[]> {
   const res = await fetchAPI(
     "/categories",
-    { sort: ["name:asc"], pagination: { pageSize: 100 } },
+    {
+      sort: ["name:asc"],
+      pagination: { pageSize: 100 },
+      locale: locale && locale !== "en" ? locale : "en",
+    },
     authHeaders()
   );
   return res.data ?? [];

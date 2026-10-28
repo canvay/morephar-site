@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { getDictionary } from "../utils/dictionary";
 
 type Status = "idle" | "sending" | "sent" | "error";
 
-export default function QuoteForm() {
+export default function QuoteForm({ lang = "en" }: { lang?: string }) {
   const [status, setStatus] = useState<Status>("idle");
+  const dict = getDictionary(lang);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -43,16 +45,14 @@ export default function QuoteForm() {
   if (status === "sent") {
     return (
       <div className="rounded-lg border border-green-200 bg-green-50 p-8 text-center">
-        <p className="text-lg font-semibold text-green-700">Thank you for your request!</p>
-        <p className="mt-2 text-sm text-green-600">
-          Our team will get back to you within one business day.
-        </p>
+        <p className="text-lg font-semibold text-green-700">{dict.formSuccessTitle}</p>
+        <p className="mt-2 text-sm text-green-600">{dict.formSuccessText}</p>
         <button
           type="button"
           onClick={() => setStatus("idle")}
           className="mt-5 text-sm font-medium text-primary hover:underline"
         >
-          Send another request
+          {dict.formSendAnother}
         </button>
       </div>
     );
@@ -63,49 +63,47 @@ export default function QuoteForm() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label htmlFor="qf-name" className="mb-1 block text-sm font-medium text-ink">
-            Name <span className="text-red-500">*</span>
+            {dict.formName} <span className="text-red-500">*</span>
           </label>
           <input id="qf-name" name="name" required className="w-full rounded border-gray-300 focus:border-primary focus:ring-primary" />
         </div>
         <div>
           <label htmlFor="qf-email" className="mb-1 block text-sm font-medium text-ink">
-            Email <span className="text-red-500">*</span>
+            {dict.formEmail} <span className="text-red-500">*</span>
           </label>
           <input id="qf-email" name="email" type="email" required className="w-full rounded border-gray-300 focus:border-primary focus:ring-primary" />
         </div>
         <div>
-          <label htmlFor="qf-phone" className="mb-1 block text-sm font-medium text-ink">Phone</label>
+          <label htmlFor="qf-phone" className="mb-1 block text-sm font-medium text-ink">{dict.formPhone}</label>
           <input id="qf-phone" name="phone" className="w-full rounded border-gray-300 focus:border-primary focus:ring-primary" />
         </div>
         <div>
-          <label htmlFor="qf-company" className="mb-1 block text-sm font-medium text-ink">Company</label>
+          <label htmlFor="qf-company" className="mb-1 block text-sm font-medium text-ink">{dict.formCompany}</label>
           <input id="qf-company" name="company" className="w-full rounded border-gray-300 focus:border-primary focus:ring-primary" />
         </div>
       </div>
       <div>
         <label htmlFor="qf-message" className="mb-1 block text-sm font-medium text-ink">
-          Message <span className="text-red-500">*</span>
+          {dict.formMessage} <span className="text-red-500">*</span>
         </label>
         <textarea
           id="qf-message"
           name="message"
           required
           rows={5}
-          placeholder="Tell us about your product, format and target output..."
+          placeholder={dict.formMessagePlaceholder}
           className="w-full rounded border-gray-300 focus:border-primary focus:ring-primary"
         />
       </div>
       {status === "error" && (
-        <p className="text-sm text-red-600">
-          Something went wrong — please try again or email us directly.
-        </p>
+        <p className="text-sm text-red-600">{dict.formError}</p>
       )}
       <button
         type="submit"
         disabled={status === "sending"}
         className="w-full rounded bg-primary py-3 font-semibold text-white transition hover:bg-primary-dark disabled:opacity-60 sm:w-auto sm:px-10"
       >
-        {status === "sending" ? "Sending..." : "Request A Quote"}
+        {status === "sending" ? dict.formSending : dict.formSubmit}
       </button>
     </form>
   );
