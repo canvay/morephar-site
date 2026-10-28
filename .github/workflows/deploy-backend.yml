@@ -58,6 +58,8 @@ jobs:
       - name: Run strapi + nginx
         run: |
           set -e
-          # 先起后端 + 反代，使 /admin 可访问（next 尚未构建，/ 会 502，属正常）
-          docker compose -f docker-compose.prod.yml up -d strapi nginx
+          # 先起后端，使 /admin 可访问（next 尚未构建，/ 会 502，属正常）
+          docker compose -f docker-compose.prod.yml up -d strapi
+          # nginx 配置以 bind mount 挂载，改 nginx.conf 后必须 --force-recreate 才能加载新配置
+          docker compose -f docker-compose.prod.yml up -d --force-recreate nginx
           docker image prune -f
