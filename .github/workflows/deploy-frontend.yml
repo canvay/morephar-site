@@ -12,10 +12,9 @@
 # 所需配置:
 #   前端构建期写死的 NEXT_PUBLIC_* 仍来自 GitHub Secrets:
 #     NEXT_PUBLIC_STRAPI_API_URL / _API_TOKEN / _FORM_SUBMISSION_TOKEN / _PAGE_LIMIT
-#   Strapi 运行时 6 项密钥来自 CVM 本地 /opt/morephar/.env.prod（不入库、不进 GitHub Secrets），
-#     本流程复制它到工作区供 compose up -d strapi 使用。
-#   注意: 不需要 TCR 相关 Secrets（镜像仅在 CVM 本机构建并直接运行，不推送镜像仓库）
-#   SSH_* 系列 Secrets 已不再需要
+#   Strapi 运行时 6 项密钥来自仓库根目录已提交的 .env.prod（本流程复制为 .env 供 compose up -d strapi 使用）。
+#   注意: 不需要 TCR / SSH 相关 Secrets（镜像仅在 CVM 本机构建并直接运行，不推送镜像仓库）
+#   ⚠️ 安全提示: .env.prod 含密钥且已入库，请确保仓库为【私有】；公开仓请勿提交真实密钥。
 
 name: Deploy Frontend (Next.js)
 
@@ -35,13 +34,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # 同后端：从 CVM 本地 /opt/morephar/.env.prod 复制 Strapi 运行时密钥到工作区 .env
-      - name: Load .env from server local .env.prod
+      # 同后端：从仓库根目录 .env.prod 复制 Strapi 运行时密钥到工作区 .env
+      - name: Load .env from repo .env.prod
         run: |
-          SRC="/opt/morephar/.env.prod"
+          SRC=".env.prod"
           if [ ! -f "$SRC" ]; then
-            echo "错误: 未找到 $SRC" >&2
-            echo "请在 CVM 上创建该文件，至少包含: APP_KEYS, API_TOKEN_SALT, ADMIN_JWT_SECRET, JWT_SECRET, TRANSFER_TOKEN_SALT, STRAPI_URL" >&2
+            echo "错误: 仓库根目录未找到 $SRC" >&2
+            echo "请确保 .env.prod 已提交到仓库根目录，至少包含: APP_KEYS, API_TOKEN_SALT, ADMIN_JWT_SECRET, JWT_SECRET, TRANSFER_TOKEN_SALT, STRAPI_URL" >&2
             exit 1
           fi
           cp "$SRC" .env
