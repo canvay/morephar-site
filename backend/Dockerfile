@@ -27,6 +27,16 @@ RUN npm_config_registry="$NPM_REGISTRY" YARN_NPM_REGISTRY_SERVER="$NPM_REGISTRY"
 
 ENV NODE_ENV=production
 
+# 种子数据：构建时把 seed 包打进镜像；容器首次启动由 docker-entrypoint.sh 自动导入。
+# 注意：数据不能写在 /app/.tmp（被 strapi_data 卷覆盖），必须在运行时由 entrypoint 导入。
+COPY seed-data.tar.gz /app/seed-data.tar.gz
+COPY docker-entrypoint.sh /app/docker-entrypoint.sh
+RUN chmod +x /app/docker-entrypoint.sh
+
+# 以 root 启动 entrypoint，便于首次启动时修正 public 目录权限并执行导入；
+# 后续如需降权，可在 entrypoint 末尾改用 `su node -c "yarn start"`。
+USER root
 EXPOSE 1337
 
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
 CMD ["yarn", "start"]
