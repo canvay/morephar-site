@@ -1,0 +1,60 @@
+# 生产编排（CI 构建并推送到镜像仓库，服务器只 pull + run）
+# 用法:
+#   docker compose -f docker-compose.prod.yml pull
+#   docker compose -f docker-compose.prod.yml up -d
+#
+# 镜像地址 = ${REGISTRY}/${REGISTRY_NAMESPACE}/morephar-<svc>:latest
+# 需在服务器 .env 中设置 REGISTRY 与 REGISTRY_NAMESPACE，例如:
+#   REGISTRY=ccr.ccs.tencentyun.com
+#   REGISTRY_NAMESPACE=your-tcr-namespace
+# （TCR 企业版/标准版实例域名形如 xxx.tencentcloudcr.com，按实际替换 REGISTRY）
+
+services:
+  strapi:
+    image: ${REGISTRY:-ccr.ccs.tencentyun.com}/${REGISTRY_NAMESPACE:-your-namespace}/morephar-strapi:latest
+    restart: unless-stopped
+    environment:
+      HOST: 0.0.0.0
+      PORT: 1337
+      NODE_ENV: production
+      APP_KEYS: ${APP_KEYS}
+      API_TOKEN_SALT: ${API_TOKEN_SALT}
+      ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET}
+      JWT_SECRET: ${JWT_SECRET}
+      TRANSFER_TOKEN_SALT: ${TRANSFER_TOKEN_SALT}
+      STRAPI_URL: ${STRAPI_URL}
+    volumes:
+      - strapi_data:/app/.tmp
+      - strapi_uploads:/app/public/uploads
+    expose:
+      - "1337"
+
+  next:
+    image: ${REGISTRY:-ccr.ccs.tencentyun.com}/${REGISTRY_NAMESPACE:-your-namespace}/morephar-next:latest
+    restart: unless-stopped
+    environment:
+      # 服务端 fetch 直连 Strapi 容器（公网 NEXT_PUBLIC_STRAPI_API_URL 只对浏览器有效）
+      STRAPI_API_URL: http://strapi:1337
+    depends_on:
+      - strapi
+    expose:
+      - "3000"
+
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    # 仅依赖 strapi：允许「先单独起后端+nginx」做首次引导(后台建 Token)，
+    # 此时 next 镜像可能还不存在；后续前端部署再 up -d next 即可。
+    depends_on:
+      - strapi
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+      - ./nginx/www:/var/www/certbot:ro
+
+volumes:
+  strapi_data:
+  strapi_uploads:

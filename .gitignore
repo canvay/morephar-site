@@ -3,3 +3,6 @@ readme-images
 .vscode
 .DS_Store
 **/.yarn
+.workbuddy
+# 种子数据导出文件（体积大，不入库）
+seed-data*.tar.gz
