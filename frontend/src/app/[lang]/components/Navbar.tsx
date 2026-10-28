@@ -158,7 +158,7 @@ export default function Navbar({
               <Link href={`/${lang}/about`} className="block rounded px-2 py-2.5 hover:bg-white/10">{dict.navAbout}</Link>
               <Link href={`/${lang}/contact`} className="block rounded px-2 py-2.5 hover:bg-white/10">{dict.navContact}</Link>
               <div className="px-2 pt-3">
-                <LanguageSwitcher lang={lang} />
+                <LanguageSwitcher lang={lang} variant="dark" />
               </div>
             </div>
           </details>
