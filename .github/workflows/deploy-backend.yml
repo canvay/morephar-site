@@ -10,10 +10,11 @@
 #   - 手动 (Actions 页面 Run workflow)
 #   - 或 push 到 main 且改动 backend/ 或 docker-compose.prod.yml 或 nginx/
 #
-# 所需 Secrets:
-#   APP_KEYS / API_TOKEN_SALT / ADMIN_JWT_SECRET / JWT_SECRET / TRANSFER_TOKEN_SALT / STRAPI_URL
-#     （Strapi 运行时密钥，由本流程在 runner 上用 Secrets 生成 .env，不再依赖服务器手建 .env）
-#   注意: 本流程不需要 NEXT_PUBLIC_* (那是前端构建用的)，也不需要 TCR 相关 Secrets
+# 所需配置（无需 GitHub Secrets）:
+#   在 CVM 服务器本地创建 /opt/morephar/.env.prod（含以下 6 项运行时密钥，不入库、不进 GitHub Secrets），
+#   本流程复制它到 runner 工作区供 docker compose 读取：
+#     APP_KEYS / API_TOKEN_SALT / ADMIN_JWT_SECRET / JWT_SECRET / TRANSFER_TOKEN_SALT / STRAPI_URL
+#   注意: 本流程不需要 NEXT_PUBLIC_* (那是前端构建用的，仍走 GitHub Secrets)，也不需要 TCR 相关 Secrets
 #         （镜像仅在 CVM 本机构建并直接运行，不推送镜像仓库）
 #   SSH_* 系列 Secrets 已不再需要（runner 即服务器本身，无需 SSH/SCP）
 
@@ -35,18 +36,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # runner 每次 checkout 是干净目录，服务器上手建的 .env 不会自动出现，
-      # 故用 Secrets 在本地生成 .env，供 docker compose 解析 Strapi 运行时变量。
-      - name: Generate .env from secrets
+      # 使用 CVM 服务器本地的 .env.prod（含 Strapi 运行时密钥，不入库、不进 GitHub Secrets），
+      # 复制到 runner 工作区供 docker compose 读取。
+      # 注意：.env.prod 必须放在仓库/工作区之外（如 /opt/morephar/），
+      #       因为 actions/checkout 默认会清理工作区未跟踪文件。
+      - name: Load .env from server local .env.prod
         run: |
-          cat > .env <<'EOF'
-          APP_KEYS=${{ secrets.APP_KEYS }}
-          API_TOKEN_SALT=${{ secrets.API_TOKEN_SALT }}
-          ADMIN_JWT_SECRET=${{ secrets.ADMIN_JWT_SECRET }}
-          JWT_SECRET=${{ secrets.JWT_SECRET }}
-          TRANSFER_TOKEN_SALT=${{ secrets.TRANSFER_TOKEN_SALT }}
-          STRAPI_URL=${{ secrets.STRAPI_URL }}
-          EOF
+          SRC="/opt/morephar/.env.prod"
+          if [ ! -f "$SRC" ]; then
+            echo "错误: 未找到 $SRC" >&2
+            echo "请在 CVM 上创建该文件，至少包含: APP_KEYS, API_TOKEN_SALT, ADMIN_JWT_SECRET, JWT_SECRET, TRANSFER_TOKEN_SALT, STRAPI_URL" >&2
+            exit 1
+          fi
+          cp "$SRC" .env
+          echo "已加载 .env ($(grep -c '=' .env) 个变量)"
 
       - name: Build Strapi image (本地)
         run: |

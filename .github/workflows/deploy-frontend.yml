@@ -9,10 +9,11 @@
 #   - 手动 (Actions 页面 Run workflow)
 #   - 或 push 到 main 且改动 frontend/ 或 docker-compose.prod.yml 或 nginx/
 #
-# 所需 Secrets:
-#   NEXT_PUBLIC_STRAPI_API_URL / _API_TOKEN / _FORM_SUBMISSION_TOKEN / _PAGE_LIMIT (前端构建期写死)
-#   APP_KEYS / API_TOKEN_SALT / ADMIN_JWT_SECRET / JWT_SECRET / TRANSFER_TOKEN_SALT / STRAPI_URL
-#     （strapi 服务运行时密钥；本流程 up -d strapi 时 compose 需要，故同样在本地生成 .env）
+# 所需配置:
+#   前端构建期写死的 NEXT_PUBLIC_* 仍来自 GitHub Secrets:
+#     NEXT_PUBLIC_STRAPI_API_URL / _API_TOKEN / _FORM_SUBMISSION_TOKEN / _PAGE_LIMIT
+#   Strapi 运行时 6 项密钥来自 CVM 本地 /opt/morephar/.env.prod（不入库、不进 GitHub Secrets），
+#     本流程复制它到工作区供 compose up -d strapi 使用。
 #   注意: 不需要 TCR 相关 Secrets（镜像仅在 CVM 本机构建并直接运行，不推送镜像仓库）
 #   SSH_* 系列 Secrets 已不再需要
 
@@ -34,17 +35,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # 同后端：用 Secrets 在 runner 本地生成 .env（含 strapi 运行时密钥）
-      - name: Generate .env from secrets
+      # 同后端：从 CVM 本地 /opt/morephar/.env.prod 复制 Strapi 运行时密钥到工作区 .env
+      - name: Load .env from server local .env.prod
         run: |
-          cat > .env <<'EOF'
-          APP_KEYS=${{ secrets.APP_KEYS }}
-          API_TOKEN_SALT=${{ secrets.API_TOKEN_SALT }}
-          ADMIN_JWT_SECRET=${{ secrets.ADMIN_JWT_SECRET }}
-          JWT_SECRET=${{ secrets.JWT_SECRET }}
-          TRANSFER_TOKEN_SALT=${{ secrets.TRANSFER_TOKEN_SALT }}
-          STRAPI_URL=${{ secrets.STRAPI_URL }}
-          EOF
+          SRC="/opt/morephar/.env.prod"
+          if [ ! -f "$SRC" ]; then
+            echo "错误: 未找到 $SRC" >&2
+            echo "请在 CVM 上创建该文件，至少包含: APP_KEYS, API_TOKEN_SALT, ADMIN_JWT_SECRET, JWT_SECRET, TRANSFER_TOKEN_SALT, STRAPI_URL" >&2
+            exit 1
+          fi
+          cp "$SRC" .env
+          echo "已加载 .env ($(grep -c '=' .env) 个变量)"
 
       - name: Build Next image (本地)
         run: |
