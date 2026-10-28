@@ -11,11 +11,11 @@
 #   - 或 push 到 main 且改动 backend/ 或 docker-compose.prod.yml 或 nginx/
 #
 # 所需配置（无需 GitHub Secrets）:
-#   仓库根目录已提交 .env.prod（含以下 6 项 Strapi 运行时密钥），本流程直接复制为 .env 供 docker compose 读取：
+#   backend/.env.prod（已提交进仓库，含以下 6 项 Strapi 运行时密钥），本流程复制为 .env 供 docker compose 读取：
 #     APP_KEYS / API_TOKEN_SALT / ADMIN_JWT_SECRET / JWT_SECRET / TRANSFER_TOKEN_SALT / STRAPI_URL
-#   注意: 本流程不需要 NEXT_PUBLIC_* (那是前端构建用的，仍走 GitHub Secrets)，也不需要 TCR / SSH 相关 Secrets
+#   注意: 本流程不需要 NEXT_PUBLIC_* (那是前端构建用的，来自 frontend/.env.prod)，也不需要 TCR / SSH 相关 Secrets
 #         （镜像仅在 CVM 本机构建并直接运行，不推送镜像仓库）
-#   ⚠️ 安全提示: .env.prod 含密钥且已入库，请确保仓库为【私有】；公开仓请勿提交真实密钥。
+#   安全提示: .env.prod 含密钥且已入库（按用户要求忽略安全限制）。
 
 name: Deploy Backend (Strapi)
 
@@ -35,14 +35,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # 使用仓库内已提交的 .env.prod（含 Strapi 运行时密钥），复制为 .env 供 docker compose 读取。
-      # actions/checkout 已把 .env.prod 拉到工作区根目录，故直接 cp 即可。
-      - name: Load .env from repo .env.prod
+      # 复制 backend/.env.prod（含 Strapi 运行时密钥）为 .env 供 docker compose 读取。
+      # actions/checkout 已把 backend/.env.prod 拉到工作区，故直接 cp 即可。
+      - name: Load .env from backend/.env.prod
         run: |
-          SRC=".env.prod"
+          SRC="backend/.env.prod"
           if [ ! -f "$SRC" ]; then
-            echo "错误: 仓库根目录未找到 $SRC" >&2
-            echo "请确保 .env.prod 已提交到仓库根目录，至少包含: APP_KEYS, API_TOKEN_SALT, ADMIN_JWT_SECRET, JWT_SECRET, TRANSFER_TOKEN_SALT, STRAPI_URL" >&2
+            echo "错误: 未找到 $SRC" >&2
+            echo "请确保 backend/.env.prod 已提交到仓库，至少包含: APP_KEYS, API_TOKEN_SALT, ADMIN_JWT_SECRET, JWT_SECRET, TRANSFER_TOKEN_SALT, STRAPI_URL" >&2
             exit 1
           fi
           cp "$SRC" .env

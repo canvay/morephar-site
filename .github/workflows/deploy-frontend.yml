@@ -1,20 +1,18 @@
 # GitHub Actions - 仅构建(含 NEXT_PUBLIC_*)并部署前端 Next.js
 # 运行环境: 腾讯云 CVM 上的 self-hosted runner（镜像本机构建并直接运行，无需推送镜像仓库）
 #
-# 前置: 后端已部署，且以下 Secrets 已就绪:
-#   NEXT_PUBLIC_STRAPI_API_TOKEN / NEXT_PUBLIC_STRAPI_FORM_SUBMISSION_TOKEN
-#   (首次引导见 deploy-backend.yml: 先部署后端 -> 后台建 Token -> 回填 Secrets -> 再跑本流程)
+# 前置: 后端已部署，且在 frontend/.env.prod 中填好 NEXT_PUBLIC_STRAPI_API_TOKEN / _FORM_SUBMISSION_TOKEN
+#   (首次引导见 deploy-backend.yml: 先部署后端 -> 后台建 Token -> 填入 frontend/.env.prod -> 再跑本流程)
 #
 # 触发:
 #   - 手动 (Actions 页面 Run workflow)
 #   - 或 push 到 main 且改动 frontend/ 或 docker-compose.prod.yml 或 nginx/
 #
-# 所需配置:
-#   前端构建期写死的 NEXT_PUBLIC_* 仍来自 GitHub Secrets:
-#     NEXT_PUBLIC_STRAPI_API_URL / _API_TOKEN / _FORM_SUBMISSION_TOKEN / _PAGE_LIMIT
-#   Strapi 运行时 6 项密钥来自仓库根目录已提交的 .env.prod（本流程复制为 .env 供 compose up -d strapi 使用）。
-#   注意: 不需要 TCR / SSH 相关 Secrets（镜像仅在 CVM 本机构建并直接运行，不推送镜像仓库）
-#   ⚠️ 安全提示: .env.prod 含密钥且已入库，请确保仓库为【私有】；公开仓请勿提交真实密钥。
+# 所需配置（均来自 frontend/.env.prod，无需 GitHub Secrets）:
+#   NEXT_PUBLIC_STRAPI_API_URL / _API_TOKEN / _FORM_SUBMISSION_TOKEN / _PAGE_LIMIT（构建期写死进镜像）
+#   APP_KEYS / API_TOKEN_SALT / ADMIN_JWT_SECRET / JWT_SECRET / TRANSFER_TOKEN_SALT / STRAPI_URL（compose up -d strapi 用）
+#   注意: 不再依赖 GitHub Secrets（NEXT_PUBLIC_* 与 Strapi 密钥都从 frontend/.env.prod 读取）。
+#   安全提示: .env.prod 含密钥且已入库（按用户要求忽略安全限制）。
 
 name: Deploy Frontend (Next.js)
 
@@ -34,13 +32,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # 同后端：从仓库根目录 .env.prod 复制 Strapi 运行时密钥到工作区 .env
-      - name: Load .env from repo .env.prod
+      # 复制 frontend/.env.prod（含 Strapi 运行时密钥 + NEXT_PUBLIC_*）为 .env 供 docker compose 读取
+      - name: Load .env from frontend/.env.prod
         run: |
-          SRC=".env.prod"
+          SRC="frontend/.env.prod"
           if [ ! -f "$SRC" ]; then
-            echo "错误: 仓库根目录未找到 $SRC" >&2
-            echo "请确保 .env.prod 已提交到仓库根目录，至少包含: APP_KEYS, API_TOKEN_SALT, ADMIN_JWT_SECRET, JWT_SECRET, TRANSFER_TOKEN_SALT, STRAPI_URL" >&2
+            echo "错误: 未找到 $SRC" >&2
+            echo "请确保 frontend/.env.prod 已提交到仓库，至少包含: APP_KEYS, API_TOKEN_SALT, ADMIN_JWT_SECRET, JWT_SECRET, TRANSFER_TOKEN_SALT, STRAPI_URL, NEXT_PUBLIC_*" >&2
             exit 1
           fi
           cp "$SRC" .env
@@ -48,12 +46,15 @@ jobs:
 
       - name: Build Next image (本地)
         run: |
+          set -a
+          source frontend/.env.prod
+          set +a
           docker build \
             --build-arg NPM_REGISTRY=https://registry.npmmirror.com \
-            --build-arg NEXT_PUBLIC_STRAPI_API_URL="${{ secrets.NEXT_PUBLIC_STRAPI_API_URL }}" \
-            --build-arg NEXT_PUBLIC_STRAPI_API_TOKEN="${{ secrets.NEXT_PUBLIC_STRAPI_API_TOKEN }}" \
-            --build-arg NEXT_PUBLIC_STRAPI_FORM_SUBMISSION_TOKEN="${{ secrets.NEXT_PUBLIC_STRAPI_FORM_SUBMISSION_TOKEN }}" \
-            --build-arg NEXT_PUBLIC_PAGE_LIMIT="${{ secrets.NEXT_PUBLIC_PAGE_LIMIT || '6' }}" \
+            --build-arg NEXT_PUBLIC_STRAPI_API_URL="$NEXT_PUBLIC_STRAPI_API_URL" \
+            --build-arg NEXT_PUBLIC_STRAPI_API_TOKEN="$NEXT_PUBLIC_STRAPI_API_TOKEN" \
+            --build-arg NEXT_PUBLIC_STRAPI_FORM_SUBMISSION_TOKEN="$NEXT_PUBLIC_STRAPI_FORM_SUBMISSION_TOKEN" \
+            --build-arg NEXT_PUBLIC_PAGE_LIMIT="$NEXT_PUBLIC_PAGE_LIMIT" \
             -t morephar-next:latest ./frontend
 
       - name: Run next + nginx
