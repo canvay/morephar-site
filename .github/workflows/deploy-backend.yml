@@ -60,7 +60,10 @@ jobs:
 
       - name: Build & push Strapi image
         run: |
-          docker build -t "$IMAGE_PREFIX/morephar-strapi:latest" ./backend
+          docker build \
+            --build-arg ALPINE_MIRROR=https://mirrors.tencent.com \
+            --build-arg NPM_REGISTRY=https://registry.npmmirror.com \
+            -t "$IMAGE_PREFIX/morephar-strapi:latest" ./backend
           docker push "$IMAGE_PREFIX/morephar-strapi:latest"
 
       - name: Run strapi + nginx
