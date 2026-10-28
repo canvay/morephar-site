@@ -59,6 +59,7 @@ jobs:
       - name: Build & push Next image
         run: |
           docker build \
+            --build-arg NPM_REGISTRY=https://registry.npmmirror.com \
             --build-arg NEXT_PUBLIC_STRAPI_API_URL="${{ secrets.NEXT_PUBLIC_STRAPI_API_URL }}" \
             --build-arg NEXT_PUBLIC_STRAPI_API_TOKEN="${{ secrets.NEXT_PUBLIC_STRAPI_API_TOKEN }}" \
             --build-arg NEXT_PUBLIC_STRAPI_FORM_SUBMISSION_TOKEN="${{ secrets.NEXT_PUBLIC_STRAPI_FORM_SUBMISSION_TOKEN }}" \

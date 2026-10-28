@@ -1,10 +1,13 @@
 # Next.js 16 生产镜像（与 engines 声明一致：Node >=22.13）
 FROM node:22-alpine
 
+# 国内构建加速：通过 build-arg 指定 npm 镜像源（默认用官方源，海外构建不受影响）
+ARG NPM_REGISTRY=https://registry.npmjs.org
+
 WORKDIR /app
 
 COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile
+RUN npm_config_registry="$NPM_REGISTRY" YARN_NPM_REGISTRY_SERVER="$NPM_REGISTRY" yarn install --frozen-lockfile
 
 COPY . .
 
