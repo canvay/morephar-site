@@ -26,7 +26,8 @@ if [ -f "$SEED" ] && [ ! -f "$FLAG" ]; then
     echo "--- running: npx strapi import -f $SEED --force ---"
   } > "$LOG" 2>&1
 
-  if npx strapi import -f "$SEED" --force >> "$LOG" 2>&1; then
+  # < /dev/null 切断 stdin，避免 strapi import 的交互式确认提示卡住（容器内无 TTY 会一直等待）
+  if yarn strapi import -f "$SEED" --force < /dev/null >> "$LOG" 2>&1; then
     echo "[entrypoint] 种子导入成功"
     touch "$FLAG"
   else

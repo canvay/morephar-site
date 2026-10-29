@@ -23,6 +23,9 @@ services:
     volumes:
       - strapi_data:/app/.tmp
       - strapi_uploads:/app/public/uploads
+      # Strapi import 会在 public/strapi-import-backups 建资源备份目录；单独挂可写卷，
+      # 解除对 public 目录可写的硬依赖（与只读无关，纯防御性处理）。
+      - strapi_import_backup:/app/public/strapi-import-backups
     expose:
       - "1337"
 
@@ -55,3 +58,4 @@ services:
 volumes:
   strapi_data:
   strapi_uploads:
+  strapi_import_backup:
