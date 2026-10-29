@@ -18,12 +18,12 @@ name: Deploy Frontend (Next.js)
 
 on:
   workflow_dispatch:
-  # push:
-  #   branches: [main]
-  #   paths:
-  #     - 'frontend/**'
-  #     - 'docker-compose.prod.yml'
-  #     - 'nginx/**'
+  push:
+    branches: [main]
+    paths:
+      - 'frontend/**'
+      - 'docker-compose.prod.yml'
+      - 'nginx/**'
 
 jobs:
   deploy:
